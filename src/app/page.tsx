@@ -1,11 +1,18 @@
-/* Page d'accueil provisoire -- sera remplacee par le vrai contenu */
-export default function Home() {
+import HeroSection from "@/components/home/HeroSection";
+import ServicesPreview from "@/components/home/ServicesPreview";
+import GalleryPreview from "@/components/home/GalleryPreview";
+import TestimonialsSection from "@/components/home/TestimonialsSection";
+import CTASection from "@/components/home/CTASection";
+
+/** Page d'accueil du site 3D World */
+export default function HomePage() {
   return (
-    <div className="flex min-h-screen items-center justify-center pt-20 font-sans">
-      <div className="flex flex-col items-center gap-6 text-center">
-        <h1 className="text-4xl font-bold text-primary">3D World</h1>
-        <p className="text-lg text-text-light">Site en construction</p>
-      </div>
-    </div>
+    <>
+      <HeroSection />
+      <ServicesPreview />
+      <GalleryPreview />
+      <TestimonialsSection />
+      <CTASection />
+    </>
   );
 }
