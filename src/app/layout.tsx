@@ -33,6 +33,11 @@ export const metadata: Metadata = {
   ],
   authors: [{ name: "3D World" }],
   creator: "3D World",
+  /*
+   * TODO: Ajouter une image OG manuellement dans public/og-image.jpg (1200x630px).
+   * La generation dynamique via opengraph-image.tsx n'est pas compatible
+   * avec l'export statique (output: "export").
+   */
   openGraph: {
     type: "website",
     locale: "fr_FR",

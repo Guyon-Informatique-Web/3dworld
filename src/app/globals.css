@@ -1,5 +1,10 @@
 @import "tailwindcss";
 
+/* Defilement fluide pour les ancres */
+html {
+  scroll-behavior: smooth;
+}
+
 /* Palette 3D World */
 @theme {
   --color-primary: #7c3aed;
