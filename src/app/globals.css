@@ -1,0 +1,15 @@
+@import "tailwindcss";
+
+/* Palette 3D World */
+@theme {
+  --color-primary: #7c3aed;
+  --color-primary-light: #a78bfa;
+  --color-primary-dark: #5b21b6;
+  --color-accent: #f97316;
+  --color-accent-light: #fdba74;
+  --color-accent-dark: #ea580c;
+  --color-bg: #fafafa;
+  --color-bg-alt: #f3f0ff;
+  --color-text: #1e1b2e;
+  --color-text-light: #6b7280;
+}
