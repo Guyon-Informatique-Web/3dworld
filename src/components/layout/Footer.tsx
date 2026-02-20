@@ -5,8 +5,8 @@ import Logo from "@/components/ui/Logo";
 const QUICK_LINKS = [
   { label: "Accueil", href: "/" },
   { label: "Services", href: "/services" },
-  { label: "Realisations", href: "/realisations" },
-  { label: "A propos", href: "/a-propos" },
+  { label: "Réalisations", href: "/realisations" },
+  { label: "À propos", href: "/a-propos" },
   { label: "Contact", href: "/contact" },
 ] as const;
 
@@ -14,7 +14,7 @@ const QUICK_LINKS = [
  * Footer du site avec 3 colonnes :
  * - Logo + description
  * - Liens rapides
- * - Contact + reseaux sociaux
+ * - Contact + réseaux sociaux
  */
 export default function Footer() {
   const currentYear = new Date().getFullYear();
@@ -29,7 +29,7 @@ export default function Footer() {
             <Logo className="[&_span]:text-white" />
             <p className="max-w-xs text-sm leading-relaxed text-gray-400">
               3D World, votre partenaire en impression 3D.
-              Nous donnons vie a vos idees grace a des technologies
+              Nous donnons vie à vos idées grâce à des technologies
               de fabrication additive de pointe.
             </p>
           </div>
@@ -53,7 +53,7 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* Colonne 3 : Contact et reseaux sociaux */}
+          {/* Colonne 3 : Contact et réseaux sociaux */}
           <div>
             <h3 className="mb-4 text-sm font-semibold uppercase tracking-wider text-white">
               Contact
@@ -78,7 +78,7 @@ export default function Footer() {
                 <span>contact@3dworld.fr</span>
               </li>
 
-              {/* Telephone */}
+              {/* Téléphone */}
               <li className="flex items-center gap-2">
                 <svg
                   width="16"
@@ -116,7 +116,7 @@ export default function Footer() {
               </li>
             </ul>
 
-            {/* Icones reseaux sociaux */}
+            {/* Icônes réseaux sociaux */}
             <div className="mt-6 flex items-center gap-4">
               {/* Instagram */}
               <a
@@ -194,7 +194,7 @@ export default function Footer() {
       <div className="border-t border-gray-700/50">
         <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-2 px-4 py-4 sm:flex-row sm:px-6 lg:px-8">
           <p className="text-xs text-gray-500">
-            &copy; {currentYear} 3D World. Tous droits reserves.
+            &copy; {currentYear} 3D World. Tous droits réservés.
           </p>
           <a
             href="https://guyon-informatique-web.fr"
@@ -202,7 +202,7 @@ export default function Footer() {
             rel="noopener noreferrer"
             className="text-xs text-gray-600 transition-colors hover:text-gray-400"
           >
-            Site cree par Guyon Informatique &amp; Web
+            Site créé par Guyon Informatique &amp; Web
           </a>
         </div>
       </div>
