@@ -15,8 +15,42 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "3D World - Impression 3D",
-  description: "3D World - Service d'impression 3D professionnelle",
+  metadataBase: new URL("https://www.3d-world.online"),
+  title: {
+    default: "3D World | Impression 3D sur mesure",
+    template: "%s | 3D World",
+  },
+  description:
+    "Impression 3D sur commande et créations originales. Donnez vie à vos idées avec 3D World. Devis gratuit.",
+  keywords: [
+    "impression 3D",
+    "impression 3D sur commande",
+    "objets 3D",
+    "prototypage 3D",
+    "créations 3D",
+    "figurines 3D",
+    "impression 3D France",
+  ],
+  authors: [{ name: "3D World" }],
+  creator: "3D World",
+  openGraph: {
+    type: "website",
+    locale: "fr_FR",
+    url: "https://www.3d-world.online",
+    siteName: "3D World",
+    title: "3D World | Impression 3D sur mesure",
+    description:
+      "Impression 3D sur commande et créations originales. Donnez vie à vos idées avec 3D World.",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "3D World | Impression 3D sur mesure",
+    description: "Impression 3D sur commande et créations originales.",
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
 };
 
 export default function RootLayout({
@@ -29,6 +63,32 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-bg text-text`}
       >
+        {/* Données structurées Schema.org pour le référencement */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "LocalBusiness",
+              name: "3D World",
+              description:
+                "Impression 3D sur commande et créations originales.",
+              url: "https://www.3d-world.online",
+              email: "contact@3dworld.fr",
+              telephone: "01 23 45 67 89",
+              address: {
+                "@type": "PostalAddress",
+                addressCountry: "FR",
+              },
+              sameAs: [
+                "https://instagram.com",
+                "https://facebook.com",
+                "https://tiktok.com",
+              ],
+              priceRange: "€€",
+            }),
+          }}
+        />
         <Header />
         <main className="min-h-screen">{children}</main>
         <Footer />

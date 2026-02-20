@@ -5,7 +5,7 @@ import StatsSection from "@/components/about/StatsSection";
 import EquipmentSection from "@/components/about/EquipmentSection";
 
 export const metadata: Metadata = {
-  title: "À propos - 3D World",
+  title: "À propos",
   description:
     "Découvrez l'histoire de 3D World, notre équipement et notre passion pour l'impression 3D.",
 };

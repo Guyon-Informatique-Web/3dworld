@@ -4,7 +4,7 @@ import ContactForm from "@/components/contact/ContactForm";
 import ContactInfo from "@/components/contact/ContactInfo";
 
 export const metadata: Metadata = {
-  title: "Contact - 3D World",
+  title: "Contact",
   description:
     "Contactez 3D World pour vos projets d'impression 3D. Devis gratuit et sans engagement.",
 };

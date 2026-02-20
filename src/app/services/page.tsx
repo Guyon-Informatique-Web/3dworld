@@ -4,9 +4,9 @@ import ProcessSteps from "@/components/services/ProcessSteps";
 import MaterialsList from "@/components/services/MaterialsList";
 
 export const metadata: Metadata = {
-  title: "Nos services - 3D World",
+  title: "Services",
   description:
-    "Découvrez nos services d'impression 3D sur commande : PLA, PETG, ABS, TPU, Résine. De l'idée à l'objet fini, nous donnons forme à vos projets.",
+    "Découvrez nos services d'impression 3D : impression sur commande, créations originales, choix de matériaux.",
 };
 
 /** Page Services : détail des prestations, processus et matériaux */
