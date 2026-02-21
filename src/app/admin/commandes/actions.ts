@@ -1,11 +1,13 @@
 // Server Actions pour la gestion des commandes admin
 // Mise a jour du statut avec validation du workflow
+// Envoie un email au client lors du changement de statut
 
 "use server";
 
 import { revalidatePath } from "next/cache";
 import { requireAdmin } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { sendOrderStatusUpdate } from "@/lib/email";
 import type { OrderStatus } from "@/generated/prisma/client";
 
 /** Type de retour standard pour les actions */
@@ -36,7 +38,7 @@ const ALLOWED_TRANSITIONS: Record<OrderStatus, OrderStatus[]> = {
 /**
  * Met a jour le statut d'une commande.
  * Verifie que la transition est autorisee selon le workflow defini.
- * Note : l'envoi d'email au client sera ajoute dans Task 12.
+ * Envoie un email de notification au client pour les statuts pertinents.
  */
 export async function updateOrderStatus(
   id: string,
@@ -78,6 +80,31 @@ export async function updateOrderStatus(
     where: { id },
     data: { status: newStatus },
   });
+
+  // Envoyer un email au client pour les statuts pertinents
+  const statusesWithEmail: OrderStatus[] = ["PROCESSING", "SHIPPED", "DELIVERED", "CANCELLED"];
+
+  if (statusesWithEmail.includes(newStatus)) {
+    // Recuperer la commande complete avec articles pour le template email
+    const fullOrder = await prisma.order.findUnique({
+      where: { id },
+      include: {
+        items: {
+          include: {
+            product: { select: { name: true } },
+            variant: { select: { name: true } },
+          },
+        },
+      },
+    });
+
+    if (fullOrder) {
+      // Envoi asynchrone — ne bloque pas la reponse de l'action
+      sendOrderStatusUpdate(fullOrder, newStatus).catch((error) => {
+        console.error("Erreur envoi email mise a jour statut:", error);
+      });
+    }
+  }
 
   // Revalider les pages admin commandes
   revalidatePath("/admin/commandes");

@@ -1,10 +1,12 @@
 // POST /api/stripe/webhook — recoit les evenements Stripe
 // Verifie la signature du webhook avec le secret STRIPE_WEBHOOK_SECRET
 // Met a jour le statut des commandes apres paiement reussi
+// Envoie les emails de confirmation au client et de notification a l'admin
 
 import { NextResponse } from "next/server";
 import { stripe } from "@/lib/stripe";
-import { updateOrderStatus } from "@/lib/orders";
+import { updateOrderStatus, getOrderById } from "@/lib/orders";
+import { sendOrderConfirmation, sendNewOrderNotification, sendErrorAlert } from "@/lib/email";
 import type Stripe from "stripe";
 
 // Forcer le runtime Node.js (necessaire pour le traitement du body brut)
@@ -65,13 +67,32 @@ export async function POST(request: Request) {
         console.log(
           `Commande ${orderId} mise a jour en PAID (session: ${session.id})`
         );
+
+        // Recuperer la commande complete pour les emails (avec articles et produits)
+        const fullOrder = await getOrderById(orderId);
+
+        if (fullOrder) {
+          // Envoyer les emails en parallele (ne bloquent pas le webhook)
+          await Promise.allSettled([
+            sendOrderConfirmation(fullOrder),
+            sendNewOrderNotification(fullOrder),
+          ]);
+        }
       } catch (error) {
         console.error(
           `Erreur mise a jour commande ${orderId}:`,
           error
         );
+        // Alerte email pour l'erreur critique de webhook
+        await sendErrorAlert(
+          error instanceof Error ? error : new Error(String(error)),
+          {
+            url: "/api/stripe/webhook",
+            method: "POST",
+            additionalInfo: `orderId: ${orderId}, sessionId: ${session.id}`,
+          }
+        );
         // On retourne quand meme 200 pour eviter les retries Stripe sur une erreur BDD
-        // Les emails de notification seront ajoutes dans Task 12
       }
       break;
     }
