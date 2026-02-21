@@ -1,5 +1,5 @@
-// Server Actions pour le CRUD des produits
-// Creation, modification, suppression et activation/desactivation des produits
+// Server Actions pour le CRUD des produits et variantes
+// Creation, modification, suppression et activation/desactivation des produits et variantes
 
 "use server";
 
@@ -321,6 +321,223 @@ export async function toggleProductActive(id: string): Promise<ActionResult> {
   });
 
   revalidatePath("/admin/produits");
+  revalidatePath("/boutique");
+
+  return { success: true };
+}
+
+// ============================================================================
+// VARIANTES PRODUIT
+// ============================================================================
+
+/**
+ * Cree une variante pour un produit.
+ * Le nom est obligatoire, le prix override et les attributs sont optionnels.
+ * Les attributs sont stockes sous forme de JSON (paires cle/valeur).
+ */
+export async function createVariant(
+  productId: string,
+  formData: FormData
+): Promise<ActionResult> {
+  await requireAdmin();
+
+  if (!productId || productId.trim().length === 0) {
+    return { success: false, error: "Identifiant de produit manquant." };
+  }
+
+  // Verifier que le produit existe et a le flag hasVariants
+  const product = await prisma.product.findUnique({
+    where: { id: productId },
+    select: { id: true, hasVariants: true },
+  });
+
+  if (!product) {
+    return { success: false, error: "Produit introuvable." };
+  }
+
+  if (!product.hasVariants) {
+    return { success: false, error: "Ce produit n'accepte pas de variantes." };
+  }
+
+  // Validation du nom (obligatoire)
+  const name = formData.get("name");
+  if (!name || typeof name !== "string" || name.trim().length === 0) {
+    return { success: false, error: "Le nom de la variante est obligatoire." };
+  }
+
+  // Validation du prix override (optionnel, >= 0 si present)
+  const priceOverrideStr = formData.get("priceOverride");
+  let priceOverride: number | null = null;
+  if (priceOverrideStr && typeof priceOverrideStr === "string" && priceOverrideStr.trim().length > 0) {
+    priceOverride = parseFloat(priceOverrideStr);
+    if (isNaN(priceOverride) || priceOverride < 0) {
+      return { success: false, error: "Le prix override doit etre un nombre positif." };
+    }
+  }
+
+  // Parser les attributs JSON (optionnel)
+  const attributesJson = formData.get("attributes");
+  let attributes: Record<string, string> = {};
+  if (attributesJson && typeof attributesJson === "string" && attributesJson.trim().length > 0) {
+    try {
+      attributes = JSON.parse(attributesJson) as Record<string, string>;
+    } catch {
+      return { success: false, error: "Format d'attributs invalide." };
+    }
+  }
+
+  // Creer la variante
+  await prisma.productVariant.create({
+    data: {
+      productId,
+      name: name.trim(),
+      priceOverride,
+      attributes,
+    },
+  });
+
+  revalidatePath(`/admin/produits/${productId}`);
+  revalidatePath("/boutique");
+
+  return { success: true };
+}
+
+/**
+ * Met a jour une variante existante.
+ * Le nom est obligatoire, le prix override et les attributs sont optionnels.
+ */
+export async function updateVariant(
+  id: string,
+  formData: FormData
+): Promise<ActionResult> {
+  await requireAdmin();
+
+  if (!id || id.trim().length === 0) {
+    return { success: false, error: "Identifiant de variante manquant." };
+  }
+
+  // Verifier que la variante existe
+  const variant = await prisma.productVariant.findUnique({
+    where: { id },
+    select: { id: true, productId: true },
+  });
+
+  if (!variant) {
+    return { success: false, error: "Variante introuvable." };
+  }
+
+  // Validation du nom (obligatoire)
+  const name = formData.get("name");
+  if (!name || typeof name !== "string" || name.trim().length === 0) {
+    return { success: false, error: "Le nom de la variante est obligatoire." };
+  }
+
+  // Validation du prix override (optionnel, >= 0 si present)
+  const priceOverrideStr = formData.get("priceOverride");
+  let priceOverride: number | null = null;
+  if (priceOverrideStr && typeof priceOverrideStr === "string" && priceOverrideStr.trim().length > 0) {
+    priceOverride = parseFloat(priceOverrideStr);
+    if (isNaN(priceOverride) || priceOverride < 0) {
+      return { success: false, error: "Le prix override doit etre un nombre positif." };
+    }
+  }
+
+  // Parser les attributs JSON (optionnel)
+  const attributesJson = formData.get("attributes");
+  let attributes: Record<string, string> = {};
+  if (attributesJson && typeof attributesJson === "string" && attributesJson.trim().length > 0) {
+    try {
+      attributes = JSON.parse(attributesJson) as Record<string, string>;
+    } catch {
+      return { success: false, error: "Format d'attributs invalide." };
+    }
+  }
+
+  // Mettre a jour la variante
+  await prisma.productVariant.update({
+    where: { id },
+    data: {
+      name: name.trim(),
+      priceOverride,
+      attributes,
+    },
+  });
+
+  revalidatePath(`/admin/produits/${variant.productId}`);
+  revalidatePath("/boutique");
+
+  return { success: true };
+}
+
+/**
+ * Supprime une variante.
+ * Si des commandes sont liees : desactivation (soft delete via isActive=false).
+ * Sinon : suppression definitive (hard delete).
+ */
+export async function deleteVariant(id: string): Promise<ActionResult> {
+  await requireAdmin();
+
+  if (!id || id.trim().length === 0) {
+    return { success: false, error: "Identifiant de variante manquant." };
+  }
+
+  // Verifier que la variante existe avec le nombre de commandes liees
+  const variant = await prisma.productVariant.findUnique({
+    where: { id },
+    include: { _count: { select: { orderItems: true } } },
+  });
+
+  if (!variant) {
+    return { success: false, error: "Variante introuvable." };
+  }
+
+  if (variant._count.orderItems > 0) {
+    // Soft delete : desactiver la variante car des commandes y sont liees
+    await prisma.productVariant.update({
+      where: { id },
+      data: { isActive: false },
+    });
+  } else {
+    // Hard delete : aucune commande liee, on peut supprimer definitivement
+    await prisma.productVariant.delete({
+      where: { id },
+    });
+  }
+
+  revalidatePath(`/admin/produits/${variant.productId}`);
+  revalidatePath("/boutique");
+
+  return { success: true };
+}
+
+/**
+ * Active ou desactive une variante.
+ * Inverse la valeur actuelle de isActive.
+ */
+export async function toggleVariantActive(id: string): Promise<ActionResult> {
+  await requireAdmin();
+
+  if (!id || id.trim().length === 0) {
+    return { success: false, error: "Identifiant de variante manquant." };
+  }
+
+  // Verifier que la variante existe
+  const variant = await prisma.productVariant.findUnique({
+    where: { id },
+    select: { id: true, productId: true, isActive: true },
+  });
+
+  if (!variant) {
+    return { success: false, error: "Variante introuvable." };
+  }
+
+  // Inverser le statut
+  await prisma.productVariant.update({
+    where: { id },
+    data: { isActive: !variant.isActive },
+  });
+
+  revalidatePath(`/admin/produits/${variant.productId}`);
   revalidatePath("/boutique");
 
   return { success: true };
