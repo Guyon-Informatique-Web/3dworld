@@ -1,5 +1,5 @@
 // Server Actions pour le CRUD des produits et variantes
-// Creation, modification, suppression et activation/desactivation des produits et variantes
+// Création, modification, suppression et activation/désactivation des produits et variantes
 
 "use server";
 
@@ -14,11 +14,11 @@ interface ActionResult {
 }
 
 /**
- * Genere un slug a partir d'un nom :
+ * Génère un slug à partir d'un nom :
  * - convertit en minuscules
- * - retire les accents et caracteres speciaux
+ * - retire les accents et caractères spéciaux
  * - remplace les espaces par des tirets
- * - supprime les tirets en debut/fin
+ * - supprime les tirets en début/fin
  */
 function generateSlug(name: string): string {
   return name
@@ -32,8 +32,8 @@ function generateSlug(name: string): string {
 }
 
 /**
- * Cree un nouveau produit.
- * Genere le slug automatiquement depuis le nom.
+ * Crée un nouveau produit.
+ * Génère le slug automatiquement depuis le nom.
  * Stocke les images sous forme de tableau d'URLs.
  */
 export async function createProduct(formData: FormData): Promise<ActionResult> {
@@ -44,7 +44,7 @@ export async function createProduct(formData: FormData): Promise<ActionResult> {
   const price = formData.get("price");
   const categoryId = formData.get("categoryId");
   const hasVariants = formData.get("hasVariants") === "true";
-  // Les images sont envoyees sous forme de JSON (tableau d'URLs)
+  // Les images sont envoyées sous forme de JSON (tableau d'URLs)
   const imagesJson = formData.get("images");
 
   // Validation du nom (obligatoire)
@@ -64,21 +64,21 @@ export async function createProduct(formData: FormData): Promise<ActionResult> {
 
   const priceValue = parseFloat(price);
   if (isNaN(priceValue) || priceValue < 0) {
-    return { success: false, error: "Le prix doit etre un nombre positif." };
+    return { success: false, error: "Le prix doit être un nombre positif." };
   }
 
-  // Validation de la categorie (obligatoire)
+  // Validation de la catégorie (obligatoire)
   if (!categoryId || typeof categoryId !== "string" || categoryId.trim().length === 0) {
-    return { success: false, error: "La categorie est obligatoire." };
+    return { success: false, error: "La catégorie est obligatoire." };
   }
 
-  // Verification que la categorie existe
+  // Vérification que la catégorie existe
   const category = await prisma.category.findUnique({
     where: { id: categoryId },
   });
 
   if (!category) {
-    return { success: false, error: "Categorie introuvable." };
+    return { success: false, error: "Catégorie introuvable." };
   }
 
   // Parser les images
@@ -96,16 +96,16 @@ export async function createProduct(formData: FormData): Promise<ActionResult> {
   let slug = generateSlug(trimmedName);
 
   if (slug.length === 0) {
-    return { success: false, error: "Le nom genere un slug invalide. Utilisez des caracteres alphanumeriques." };
+    return { success: false, error: "Le nom génère un slug invalide. Utilisez des caractères alphanumériques." };
   }
 
-  // Verifier l'unicite du slug, ajouter un suffixe si necessaire
+  // Vérifier l'unicité du slug, ajouter un suffixe si nécessaire
   const existingProduct = await prisma.product.findUnique({
     where: { slug },
   });
 
   if (existingProduct) {
-    // Ajouter un suffixe numerique pour rendre le slug unique
+    // Ajouter un suffixe numérique pour rendre le slug unique
     let counter = 2;
     let uniqueSlug = `${slug}-${counter}`;
     while (await prisma.product.findUnique({ where: { slug: uniqueSlug } })) {
@@ -115,7 +115,7 @@ export async function createProduct(formData: FormData): Promise<ActionResult> {
     slug = uniqueSlug;
   }
 
-  // Creer le produit
+  // Créer le produit
   await prisma.product.create({
     data: {
       name: trimmedName,
@@ -135,8 +135,8 @@ export async function createProduct(formData: FormData): Promise<ActionResult> {
 }
 
 /**
- * Met a jour un produit existant.
- * Regenere le slug si le nom a change.
+ * Met à jour un produit existant.
+ * Régénère le slug si le nom a changé.
  */
 export async function updateProduct(id: string, formData: FormData): Promise<ActionResult> {
   await requireAdmin();
@@ -169,15 +169,15 @@ export async function updateProduct(id: string, formData: FormData): Promise<Act
 
   const priceValue = parseFloat(price);
   if (isNaN(priceValue) || priceValue < 0) {
-    return { success: false, error: "Le prix doit etre un nombre positif." };
+    return { success: false, error: "Le prix doit être un nombre positif." };
   }
 
-  // Validation de la categorie (obligatoire)
+  // Validation de la catégorie (obligatoire)
   if (!categoryId || typeof categoryId !== "string" || categoryId.trim().length === 0) {
-    return { success: false, error: "La categorie est obligatoire." };
+    return { success: false, error: "La catégorie est obligatoire." };
   }
 
-  // Verifier que le produit existe
+  // Vérifier que le produit existe
   const existingProduct = await prisma.product.findUnique({
     where: { id },
   });
@@ -186,13 +186,13 @@ export async function updateProduct(id: string, formData: FormData): Promise<Act
     return { success: false, error: "Produit introuvable." };
   }
 
-  // Verification que la categorie existe
+  // Vérification que la catégorie existe
   const category = await prisma.category.findUnique({
     where: { id: categoryId },
   });
 
   if (!category) {
-    return { success: false, error: "Categorie introuvable." };
+    return { success: false, error: "Catégorie introuvable." };
   }
 
   // Parser les images
@@ -210,16 +210,16 @@ export async function updateProduct(id: string, formData: FormData): Promise<Act
   let slug = generateSlug(trimmedName);
 
   if (slug.length === 0) {
-    return { success: false, error: "Le nom genere un slug invalide. Utilisez des caracteres alphanumeriques." };
+    return { success: false, error: "Le nom génère un slug invalide. Utilisez des caractères alphanumériques." };
   }
 
-  // Verifier l'unicite du slug (sauf si c'est le meme produit)
+  // Vérifier l'unicité du slug (sauf si c'est le même produit)
   const slugConflict = await prisma.product.findUnique({
     where: { slug },
   });
 
   if (slugConflict && slugConflict.id !== id) {
-    // Ajouter un suffixe numerique pour rendre le slug unique
+    // Ajouter un suffixe numérique pour rendre le slug unique
     let counter = 2;
     let uniqueSlug = `${slug}-${counter}`;
     while (true) {
@@ -231,7 +231,7 @@ export async function updateProduct(id: string, formData: FormData): Promise<Act
     slug = uniqueSlug;
   }
 
-  // Mettre a jour le produit
+  // Mettre à jour le produit
   await prisma.product.update({
     where: { id },
     data: {
@@ -254,8 +254,8 @@ export async function updateProduct(id: string, formData: FormData): Promise<Act
 
 /**
  * Supprime un produit.
- * Si des commandes sont liees : desactivation (soft delete via isActive=false).
- * Sinon : suppression definitive (hard delete).
+ * Si des commandes sont liées : désactivation (soft delete via isActive=false).
+ * Sinon : suppression définitive (hard delete).
  */
 export async function deleteProduct(id: string): Promise<ActionResult> {
   await requireAdmin();
@@ -264,7 +264,7 @@ export async function deleteProduct(id: string): Promise<ActionResult> {
     return { success: false, error: "Identifiant de produit manquant." };
   }
 
-  // Verifier que le produit existe avec le nombre de commandes liees
+  // Vérifier que le produit existe avec le nombre de commandes liées
   const product = await prisma.product.findUnique({
     where: { id },
     include: { _count: { select: { orderItems: true } } },
@@ -275,13 +275,13 @@ export async function deleteProduct(id: string): Promise<ActionResult> {
   }
 
   if (product._count.orderItems > 0) {
-    // Soft delete : desactiver le produit car des commandes y sont liees
+    // Soft delete : désactiver le produit car des commandes y sont liées
     await prisma.product.update({
       where: { id },
       data: { isActive: false },
     });
   } else {
-    // Hard delete : aucune commande liee, on peut supprimer definitivement
+    // Hard delete : aucune commande liée, on peut supprimer définitivement
     await prisma.product.delete({
       where: { id },
     });
@@ -294,7 +294,7 @@ export async function deleteProduct(id: string): Promise<ActionResult> {
 }
 
 /**
- * Active ou desactive un produit.
+ * Active ou désactive un produit.
  * Inverse la valeur actuelle de isActive.
  */
 export async function toggleProductActive(id: string): Promise<ActionResult> {
@@ -304,7 +304,7 @@ export async function toggleProductActive(id: string): Promise<ActionResult> {
     return { success: false, error: "Identifiant de produit manquant." };
   }
 
-  // Verifier que le produit existe
+  // Vérifier que le produit existe
   const product = await prisma.product.findUnique({
     where: { id },
     select: { isActive: true },
@@ -331,9 +331,9 @@ export async function toggleProductActive(id: string): Promise<ActionResult> {
 // ============================================================================
 
 /**
- * Cree une variante pour un produit.
+ * Crée une variante pour un produit.
  * Le nom est obligatoire, le prix override et les attributs sont optionnels.
- * Les attributs sont stockes sous forme de JSON (paires cle/valeur).
+ * Les attributs sont stockés sous forme de JSON (paires clé/valeur).
  */
 export async function createVariant(
   productId: string,
@@ -345,7 +345,7 @@ export async function createVariant(
     return { success: false, error: "Identifiant de produit manquant." };
   }
 
-  // Verifier que le produit existe et a le flag hasVariants
+  // Vérifier que le produit existe et a le flag hasVariants
   const product = await prisma.product.findUnique({
     where: { id: productId },
     select: { id: true, hasVariants: true },
@@ -365,13 +365,13 @@ export async function createVariant(
     return { success: false, error: "Le nom de la variante est obligatoire." };
   }
 
-  // Validation du prix override (optionnel, >= 0 si present)
+  // Validation du prix override (optionnel, >= 0 si présent)
   const priceOverrideStr = formData.get("priceOverride");
   let priceOverride: number | null = null;
   if (priceOverrideStr && typeof priceOverrideStr === "string" && priceOverrideStr.trim().length > 0) {
     priceOverride = parseFloat(priceOverrideStr);
     if (isNaN(priceOverride) || priceOverride < 0) {
-      return { success: false, error: "Le prix override doit etre un nombre positif." };
+      return { success: false, error: "Le prix override doit être un nombre positif." };
     }
   }
 
@@ -386,7 +386,7 @@ export async function createVariant(
     }
   }
 
-  // Creer la variante
+  // Créer la variante
   await prisma.productVariant.create({
     data: {
       productId,
@@ -403,7 +403,7 @@ export async function createVariant(
 }
 
 /**
- * Met a jour une variante existante.
+ * Met à jour une variante existante.
  * Le nom est obligatoire, le prix override et les attributs sont optionnels.
  */
 export async function updateVariant(
@@ -416,7 +416,7 @@ export async function updateVariant(
     return { success: false, error: "Identifiant de variante manquant." };
   }
 
-  // Verifier que la variante existe
+  // Vérifier que la variante existe
   const variant = await prisma.productVariant.findUnique({
     where: { id },
     select: { id: true, productId: true },
@@ -432,13 +432,13 @@ export async function updateVariant(
     return { success: false, error: "Le nom de la variante est obligatoire." };
   }
 
-  // Validation du prix override (optionnel, >= 0 si present)
+  // Validation du prix override (optionnel, >= 0 si présent)
   const priceOverrideStr = formData.get("priceOverride");
   let priceOverride: number | null = null;
   if (priceOverrideStr && typeof priceOverrideStr === "string" && priceOverrideStr.trim().length > 0) {
     priceOverride = parseFloat(priceOverrideStr);
     if (isNaN(priceOverride) || priceOverride < 0) {
-      return { success: false, error: "Le prix override doit etre un nombre positif." };
+      return { success: false, error: "Le prix override doit être un nombre positif." };
     }
   }
 
@@ -453,7 +453,7 @@ export async function updateVariant(
     }
   }
 
-  // Mettre a jour la variante
+  // Mettre à jour la variante
   await prisma.productVariant.update({
     where: { id },
     data: {
@@ -471,8 +471,8 @@ export async function updateVariant(
 
 /**
  * Supprime une variante.
- * Si des commandes sont liees : desactivation (soft delete via isActive=false).
- * Sinon : suppression definitive (hard delete).
+ * Si des commandes sont liées : désactivation (soft delete via isActive=false).
+ * Sinon : suppression définitive (hard delete).
  */
 export async function deleteVariant(id: string): Promise<ActionResult> {
   await requireAdmin();
@@ -481,7 +481,7 @@ export async function deleteVariant(id: string): Promise<ActionResult> {
     return { success: false, error: "Identifiant de variante manquant." };
   }
 
-  // Verifier que la variante existe avec le nombre de commandes liees
+  // Vérifier que la variante existe avec le nombre de commandes liees
   const variant = await prisma.productVariant.findUnique({
     where: { id },
     include: { _count: { select: { orderItems: true } } },
@@ -492,13 +492,13 @@ export async function deleteVariant(id: string): Promise<ActionResult> {
   }
 
   if (variant._count.orderItems > 0) {
-    // Soft delete : desactiver la variante car des commandes y sont liees
+    // Soft delete : désactiver la variante car des commandes y sont liées
     await prisma.productVariant.update({
       where: { id },
       data: { isActive: false },
     });
   } else {
-    // Hard delete : aucune commande liee, on peut supprimer definitivement
+    // Hard delete : aucune commande liée, on peut supprimer définitivement
     await prisma.productVariant.delete({
       where: { id },
     });
@@ -511,7 +511,7 @@ export async function deleteVariant(id: string): Promise<ActionResult> {
 }
 
 /**
- * Active ou desactive une variante.
+ * Active ou désactive une variante.
  * Inverse la valeur actuelle de isActive.
  */
 export async function toggleVariantActive(id: string): Promise<ActionResult> {
@@ -521,7 +521,7 @@ export async function toggleVariantActive(id: string): Promise<ActionResult> {
     return { success: false, error: "Identifiant de variante manquant." };
   }
 
-  // Verifier que la variante existe
+  // Vérifier que la variante existe
   const variant = await prisma.productVariant.findUnique({
     where: { id },
     select: { id: true, productId: true, isActive: true },

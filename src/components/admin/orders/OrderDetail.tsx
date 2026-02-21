@@ -1,5 +1,5 @@
-// Detail d'une commande admin — affiche toutes les informations et permet de changer le statut
-// Client component pour gerer les actions de changement de statut
+// Détail d'une commande admin — affiche toutes les informations et permet de changer le statut
+// Client component pour gérer les actions de changement de statut
 
 "use client";
 
@@ -26,7 +26,7 @@ interface OrderItemData {
   } | null;
 }
 
-/** Donnees completes de la commande */
+/** Données complètes de la commande */
 interface OrderData {
   id: string;
   email: string;
@@ -43,18 +43,18 @@ interface OrderData {
 }
 
 interface OrderDetailProps {
-  /** Commande chargee cote serveur */
+  /** Commande chargée côté serveur */
   order: OrderData;
 }
 
-/** Labels des methodes de livraison */
+/** Labels des méthodes de livraison */
 const SHIPPING_LABELS: Record<string, string> = {
-  DELIVERY: "Livraison a domicile",
+  DELIVERY: "Livraison à domicile",
   PICKUP: "Retrait sur place",
 };
 
 /**
- * Formate un montant en euros (format francais).
+ * Formate un montant en euros (format français).
  */
 function formatPrice(amount: string | number): string {
   const value = typeof amount === "string" ? parseFloat(amount) : amount;
@@ -65,7 +65,7 @@ function formatPrice(amount: string | number): string {
 }
 
 /**
- * Formate une date ISO en format francais lisible.
+ * Formate une date ISO en format français lisible.
  */
 function formatDate(dateStr: string): string {
   const date = new Date(dateStr);
@@ -78,7 +78,7 @@ function formatDate(dateStr: string): string {
 export default function OrderDetail({ order }: OrderDetailProps) {
   // Message d'erreur pour les actions
   const [error, setError] = useState<string | null>(null);
-  // Message de succes apres changement de statut
+  // Message de succès après changement de statut
   const [success, setSuccess] = useState<string | null>(null);
   // Chargement en cours (identifiant du statut cible)
   const [loading, setLoading] = useState<OrderStatus | null>(null);
@@ -96,9 +96,9 @@ export default function OrderDetail({ order }: OrderDetailProps) {
     setLoading(null);
 
     if (!result.success) {
-      setError(result.error ?? "Erreur lors de la mise a jour du statut.");
+      setError(result.error ?? "Erreur lors de la mise à jour du statut.");
     } else {
-      setSuccess("Statut mis a jour avec succes.");
+      setSuccess("Statut mis à jour avec succès.");
     }
   }
 
@@ -108,7 +108,7 @@ export default function OrderDetail({ order }: OrderDetailProps) {
 
   return (
     <div className="space-y-6">
-      {/* En-tete avec retour et numero de commande */}
+      {/* En-tête avec retour et numéro de commande */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
           <Link
@@ -169,7 +169,7 @@ export default function OrderDetail({ order }: OrderDetailProps) {
             </div>
             {order.phone && (
               <div>
-                <span className="text-xs text-text-light">Telephone</span>
+                <span className="text-xs text-text-light">Téléphone</span>
                 <p className="text-sm font-medium text-text">{order.phone}</p>
               </div>
             )}
@@ -197,7 +197,7 @@ export default function OrderDetail({ order }: OrderDetailProps) {
               </div>
             )}
             <div>
-              <span className="text-xs text-text-light">Cout</span>
+              <span className="text-xs text-text-light">Coût</span>
               <p className="text-sm font-medium text-text">
                 {shippingCost > 0 ? formatPrice(order.shippingCost) : "Gratuit"}
               </p>
@@ -228,7 +228,7 @@ export default function OrderDetail({ order }: OrderDetailProps) {
                   Produit
                 </th>
                 <th className="px-6 py-3 text-center text-xs font-semibold uppercase tracking-wider text-text-light">
-                  Quantite
+                  Quantité
                 </th>
                 <th className="px-6 py-3 text-right text-xs font-semibold uppercase tracking-wider text-text-light">
                   Prix unitaire
@@ -287,7 +287,7 @@ export default function OrderDetail({ order }: OrderDetailProps) {
                       </div>
                     </td>
 
-                    {/* Quantite */}
+                    {/* Quantité */}
                     <td className="px-6 py-4 text-center text-sm text-text">
                       {item.quantity}
                     </td>
@@ -345,7 +345,7 @@ export default function OrderDetail({ order }: OrderDetailProps) {
               disabled={loading !== null}
               className="rounded-lg bg-orange-500 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-orange-600 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {loading === "PROCESSING" ? "Mise a jour..." : "Passer en preparation"}
+              {loading === "PROCESSING" ? "Mise à jour..." : "Passer en préparation"}
             </button>
           )}
 
@@ -356,7 +356,7 @@ export default function OrderDetail({ order }: OrderDetailProps) {
               disabled={loading !== null}
               className="rounded-lg bg-indigo-500 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-indigo-600 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {loading === "SHIPPED" ? "Mise a jour..." : "Marquer comme expediee"}
+              {loading === "SHIPPED" ? "Mise à jour..." : "Marquer comme expédiée"}
             </button>
           )}
 
@@ -367,7 +367,7 @@ export default function OrderDetail({ order }: OrderDetailProps) {
               disabled={loading !== null}
               className="rounded-lg bg-green-500 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-green-600 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {loading === "DELIVERED" ? "Mise a jour..." : "Marquer comme livree"}
+              {loading === "DELIVERED" ? "Mise à jour..." : "Marquer comme livrée"}
             </button>
           )}
 
@@ -376,7 +376,7 @@ export default function OrderDetail({ order }: OrderDetailProps) {
             <button
               onClick={() => {
                 const confirmed = window.confirm(
-                  "Annuler cette commande ? Cette action est irreversible."
+                  "Annuler cette commande ? Cette action est irréversible."
                 );
                 if (confirmed) {
                   handleStatusChange("CANCELLED");
@@ -393,8 +393,8 @@ export default function OrderDetail({ order }: OrderDetailProps) {
           {(order.status === "DELIVERED" || order.status === "CANCELLED") && (
             <p className="text-sm text-text-light">
               {order.status === "DELIVERED"
-                ? "Cette commande est livree. Aucune action disponible."
-                : "Cette commande est annulee. Aucune action disponible."}
+                ? "Cette commande est livrée. Aucune action disponible."
+                : "Cette commande est annulée. Aucune action disponible."}
             </p>
           )}
         </div>

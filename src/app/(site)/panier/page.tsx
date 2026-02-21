@@ -1,4 +1,4 @@
-// Page panier — affiche les articles du panier avec resume et actions
+// Page panier — affiche les articles du panier avec résumé et actions
 // Client component car elle utilise le CartContext
 
 "use client";
@@ -23,7 +23,7 @@ export default function PanierPage() {
       {items.length === 0 ? (
         // Panier vide
         <div className="flex flex-col items-center justify-center py-16 text-center">
-          {/* Icone panier vide */}
+          {/* Icône panier vide */}
           <svg
             width="64"
             height="64"
@@ -44,7 +44,7 @@ export default function PanierPage() {
             Votre panier est vide
           </h2>
           <p className="mb-6 text-text-light">
-            Decouvrez nos produits et ajoutez vos articles preferes.
+            Découvrez nos produits et ajoutez vos articles préférés.
           </p>
           <Link
             href="/boutique"
@@ -59,7 +59,7 @@ export default function PanierPage() {
           {/* Liste des articles (2/3 de la largeur) */}
           <div className="lg:col-span-2">
             <div className="rounded-2xl border border-gray-100 bg-white p-4 shadow-sm sm:p-6">
-              {/* En-tete avec nombre d'articles et bouton vider */}
+              {/* En-tête avec nombre d'articles et bouton vider */}
               <div className="mb-4 flex items-center justify-between border-b border-gray-100 pb-4">
                 <span className="text-sm font-medium text-text-light">
                   {items.length} article{items.length > 1 ? "s" : ""} dans votre
@@ -86,7 +86,7 @@ export default function PanierPage() {
             </div>
           </div>
 
-          {/* Resume / sidebar (1/3 de la largeur) */}
+          {/* Résumé / sidebar (1/3 de la largeur) */}
           <div className="lg:col-span-1">
             <div className="sticky top-24">
               <CartSummary />

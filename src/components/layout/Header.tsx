@@ -26,13 +26,13 @@ export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const pathname = usePathname();
 
-  /* Detection du scroll pour changer le style du header */
+  /* Détection du scroll pour changer le style du header */
   useEffect(() => {
     const handleScroll = () => {
       setScrolled(window.scrollY > 20);
     };
 
-    /* Verifier l'etat initial au montage */
+    /* Vérifier l'état initial au montage */
     handleScroll();
 
     window.addEventListener("scroll", handleScroll, { passive: true });
@@ -86,7 +86,7 @@ export default function Header() {
 
           {/* Panier + CTA desktop + Bouton hamburger mobile */}
           <div className="flex items-center gap-3">
-            {/* Badge panier — visible sur tous les ecrans */}
+            {/* Badge panier — visible sur tous les écrans */}
             <CartBadge />
 
             {/* CTA desktop */}

@@ -1,5 +1,5 @@
-// Page admin des produits — charge les donnees et affiche la liste
-// Server Component : les donnees sont chargees cote serveur via Prisma
+// Page admin des produits — charge les données et affiche la liste
+// Server Component : les données sont chargées côté serveur via Prisma
 
 import { prisma } from "@/lib/prisma";
 import ProductList from "@/components/admin/products/ProductList";
@@ -9,8 +9,8 @@ export const metadata = {
 };
 
 export default async function AdminProductsPage() {
-  // Charger tous les produits avec leur categorie
-  // Tries par date de creation decroissante (plus recents en premier)
+  // Charger tous les produits avec leur catégorie
+  // Triés par date de création décroissante (plus récents en premier)
   const products = await prisma.product.findMany({
     orderBy: { createdAt: "desc" },
     include: {
@@ -27,7 +27,7 @@ export default async function AdminProductsPage() {
     select: { id: true, name: true },
   });
 
-  // Serialiser les prix Decimal en string pour le composant client
+  // Sérialiser les prix Decimal en string pour le composant client
   const serializedProducts = products.map((product) => ({
     id: product.id,
     name: product.name,

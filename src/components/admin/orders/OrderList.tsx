@@ -1,5 +1,5 @@
-// Liste des commandes admin — table avec filtres par statut et lien vers le detail
-// Client component pour gerer l'interactivite des filtres
+// Liste des commandes admin — table avec filtres par statut et lien vers le détail
+// Client component pour gérer l'interactivité des filtres
 
 "use client";
 
@@ -20,7 +20,7 @@ interface OrderForList {
 }
 
 interface OrderListProps {
-  /** Liste des commandes chargees cote serveur */
+  /** Liste des commandes chargées côté serveur */
   orders: OrderForList[];
 }
 
@@ -28,15 +28,15 @@ interface OrderListProps {
 const STATUS_FILTERS: { value: OrderStatus | "ALL"; label: string }[] = [
   { value: "ALL", label: "Toutes" },
   { value: "PENDING", label: "En attente" },
-  { value: "PAID", label: "Payees" },
-  { value: "PROCESSING", label: "En preparation" },
-  { value: "SHIPPED", label: "Expediees" },
-  { value: "DELIVERED", label: "Livrees" },
-  { value: "CANCELLED", label: "Annulees" },
+  { value: "PAID", label: "Payées" },
+  { value: "PROCESSING", label: "En préparation" },
+  { value: "SHIPPED", label: "Expédiées" },
+  { value: "DELIVERED", label: "Livrées" },
+  { value: "CANCELLED", label: "Annulées" },
 ];
 
 /**
- * Formate un montant en euros (format francais avec virgule decimale).
+ * Formate un montant en euros (format français avec virgule décimale).
  */
 function formatPrice(amount: string): string {
   const value = parseFloat(amount);
@@ -47,7 +47,7 @@ function formatPrice(amount: string): string {
 }
 
 /**
- * Formate une date ISO en format francais lisible.
+ * Formate une date ISO en format français lisible.
  */
 function formatDate(dateStr: string): string {
   const date = new Date(dateStr);
@@ -69,7 +69,7 @@ export default function OrderList({ orders }: OrderListProps) {
 
   return (
     <div className="space-y-6">
-      {/* En-tete */}
+      {/* En-tête */}
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-text">Commandes</h1>
 
@@ -118,7 +118,7 @@ export default function OrderList({ orders }: OrderListProps) {
           <p className="text-text-light">
             {orders.length === 0
               ? "Aucune commande pour le moment."
-              : "Aucune commande ne correspond au filtre selectionne."}
+              : "Aucune commande ne correspond au filtre sélectionné."}
           </p>
         </div>
       ) : (
@@ -128,7 +128,7 @@ export default function OrderList({ orders }: OrderListProps) {
               <thead>
                 <tr className="border-b border-gray-200 bg-gray-50">
                   <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-text-light">
-                    Numero
+                    Numéro
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-text-light">
                     Date
@@ -153,7 +153,7 @@ export default function OrderList({ orders }: OrderListProps) {
                     key={order.id}
                     className="hover:bg-gray-50 transition-colors"
                   >
-                    {/* Numero (8 premiers caracteres de l'ID) */}
+                    {/* Numéro (8 premiers caractères de l'ID) */}
                     <td className="px-6 py-4 font-mono text-sm font-medium text-text">
                       {order.id.slice(0, 8).toUpperCase()}
                     </td>

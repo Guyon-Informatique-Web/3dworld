@@ -1,7 +1,7 @@
 // Page Boutique publique — catalogue de produits avec filtrage et tri
-// Server Component : charge les produits et categories depuis Prisma
-// Filtrage par categorie via searchParams (?categorie=figurines)
-// Tri par date (recent) ou prix (croissant/decroissant)
+// Server Component : charge les produits et catégories depuis Prisma
+// Filtrage par catégorie via searchParams (?categorie=figurines)
+// Tri par date (récent) ou prix (croissant/décroissant)
 
 import type { Metadata } from "next";
 import { prisma } from "@/lib/prisma";
@@ -36,7 +36,7 @@ export default async function BoutiquePage({ searchParams }: BoutiquePageProps) 
   const categorySlug = params.categorie ?? null;
   const sort: SortOption = isValidSort(params.tri) ? params.tri : "recent";
 
-  // Charger les categories actives pour le filtre
+  // Charger les catégories actives pour le filtre
   const categories = await prisma.category.findMany({
     where: { isActive: true },
     orderBy: { order: "asc" },
@@ -49,7 +49,7 @@ export default async function BoutiquePage({ searchParams }: BoutiquePageProps) 
     category?: { slug: string };
   } = { isActive: true };
 
-  // Filtrer par categorie si un slug est fourni et valide
+  // Filtrer par catégorie si un slug est fourni et valide
   if (categorySlug) {
     const categoryExists = categories.some((c) => c.slug === categorySlug);
     if (categoryExists) {
@@ -57,7 +57,7 @@ export default async function BoutiquePage({ searchParams }: BoutiquePageProps) 
     }
   }
 
-  // Determiner l'ordre de tri Prisma
+  // Déterminer l'ordre de tri Prisma
   let orderBy: Record<string, string>;
   switch (sort) {
     case "price-asc":
@@ -87,7 +87,7 @@ export default async function BoutiquePage({ searchParams }: BoutiquePageProps) 
     },
   });
 
-  // Serialiser les Decimal Prisma en number pour les composants client
+  // Sérialiser les Decimal Prisma en number pour les composants client
   const products: ProductCardData[] = rawProducts.map((p) => ({
     id: p.id,
     name: p.name,

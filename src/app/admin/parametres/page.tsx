@@ -1,15 +1,15 @@
-// Page admin des parametres de la boutique
+// Page admin des paramètres de la boutique
 // Charge les ShopSettings depuis Prisma et affiche le formulaire
-// Server Component : les donnees sont chargees cote serveur
+// Server Component : les données sont chargées côté serveur
 
 import { prisma } from "@/lib/prisma";
 import ShopSettingsForm from "@/components/admin/settings/ShopSettingsForm";
 
 export const metadata = {
-  title: "Parametres - Administration",
+  title: "Paramètres - Administration",
 };
 
-/** Valeurs par defaut si aucune ligne n'existe en base */
+/** Valeurs par défaut si aucune ligne n'existe en base */
 const DEFAULT_SETTINGS = {
   shippingFixedPrice: 5.0,
   freeShippingThreshold: null,
@@ -18,7 +18,7 @@ const DEFAULT_SETTINGS = {
 } as const;
 
 export default async function AdminParametresPage() {
-  // Charger la ligne unique de parametres (id="default")
+  // Charger la ligne unique de paramètres (id="default")
   const dbSettings = await prisma.shopSettings.findUnique({
     where: { id: "default" },
   });
@@ -39,10 +39,10 @@ export default async function AdminParametresPage() {
     <div>
       {/* Titre de la page */}
       <h1 className="mb-6 text-2xl font-bold text-text">
-        Parametres de la boutique
+        Paramètres de la boutique
       </h1>
 
-      {/* Formulaire de parametres */}
+      {/* Formulaire de paramètres */}
       <ShopSettingsForm settings={settings} />
     </div>
   );

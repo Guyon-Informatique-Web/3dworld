@@ -1,5 +1,5 @@
-// Formulaire de checkout — informations client, choix livraison et recapitulatif
-// Composant client : utilise le CartContext et le client Supabase pour pre-remplir
+// Formulaire de checkout — informations client, choix livraison et récapitulatif
+// Composant client : utilise le CartContext et le client Supabase pour pré-remplir
 
 "use client";
 
@@ -11,7 +11,7 @@ import { formatPrice } from "@/lib/cart";
 import { createClient } from "@/lib/supabase/client";
 import type { ShippingMethod } from "@/generated/prisma/client";
 
-/** Parametres boutique charges cote serveur et passes en props */
+/** Paramètres boutique chargés côté serveur et passés en props */
 interface ShopSettingsData {
   shippingFixedPrice: number;
   freeShippingThreshold: number | null;
@@ -34,11 +34,11 @@ export default function CheckoutForm({ shopSettings }: CheckoutFormProps) {
   const [shippingMethod, setShippingMethod] = useState<ShippingMethod>("DELIVERY");
   const [shippingAddress, setShippingAddress] = useState("");
 
-  // Etat du formulaire
+  // État du formulaire
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Pre-remplir avec les infos de l'utilisateur connecte
+  // Pré-remplir avec les infos de l'utilisateur connecté
   useEffect(() => {
     async function prefillUser() {
       try {
@@ -52,7 +52,7 @@ export default function CheckoutForm({ shopSettings }: CheckoutFormProps) {
           setName(user.user_metadata?.name ?? "");
         }
       } catch {
-        // Pas de session — on ne pre-remplit pas
+        // Pas de session — on ne pré-remplit pas
       }
     }
 
@@ -94,7 +94,7 @@ export default function CheckoutForm({ shopSettings }: CheckoutFormProps) {
     setIsLoading(true);
 
     try {
-      // Validation basique cote client
+      // Validation basique côté client
       if (!name.trim() || !email.trim()) {
         setError("Le nom et l'email sont obligatoires.");
         setIsLoading(false);
@@ -128,7 +128,7 @@ export default function CheckoutForm({ shopSettings }: CheckoutFormProps) {
       const data = (await response.json()) as { url?: string; error?: string };
 
       if (!response.ok || !data.url) {
-        setError(data.error || "Erreur lors de la creation du paiement.");
+        setError(data.error || "Erreur lors de la création du paiement.");
         setIsLoading(false);
         return;
       }
@@ -139,7 +139,7 @@ export default function CheckoutForm({ shopSettings }: CheckoutFormProps) {
       // Rediriger vers Stripe Checkout
       router.push(data.url);
     } catch {
-      setError("Une erreur est survenue. Veuillez reessayer.");
+      setError("Une erreur est survenue. Veuillez réessayer.");
       setIsLoading(false);
     }
   }
@@ -193,13 +193,13 @@ export default function CheckoutForm({ shopSettings }: CheckoutFormProps) {
               />
             </div>
 
-            {/* Telephone */}
+            {/* Téléphone */}
             <div>
               <label
                 htmlFor="checkout-phone"
                 className="mb-1 block text-sm font-medium text-text"
               >
-                Telephone{" "}
+                Téléphone{" "}
                 <span className="text-text-light">(optionnel)</span>
               </label>
               <input
@@ -242,7 +242,7 @@ export default function CheckoutForm({ shopSettings }: CheckoutFormProps) {
               <div className="flex-1">
                 <div className="flex items-center justify-between">
                   <span className="font-medium text-text">
-                    Livraison a domicile
+                    Livraison à domicile
                   </span>
                   <span className="text-sm font-semibold text-text">
                     {isFreeShipping
@@ -252,14 +252,14 @@ export default function CheckoutForm({ shopSettings }: CheckoutFormProps) {
                 </div>
                 {shopSettings.freeShippingThreshold !== null && !isFreeShipping && (
                   <p className="mt-1 text-xs text-text-light">
-                    Gratuit a partir de{" "}
+                    Gratuit à partir de{" "}
                     {formatPrice(shopSettings.freeShippingThreshold)}
                   </p>
                 )}
               </div>
             </label>
 
-            {/* Option retrait (si active dans les parametres) */}
+            {/* Option retrait (si active dans les paramètres) */}
             {shopSettings.pickupEnabled && (
               <label
                 htmlFor="shipping-pickup"
@@ -320,11 +320,11 @@ export default function CheckoutForm({ shopSettings }: CheckoutFormProps) {
         </div>
       </div>
 
-      {/* Recapitulatif commande (1/3) */}
+      {/* Récapitulatif commande (1/3) */}
       <div className="lg:col-span-1">
         <div className="sticky top-24 rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
           <h2 className="mb-4 text-lg font-bold text-text">
-            Recapitulatif
+            Récapitulatif
           </h2>
 
           {/* Liste des articles */}

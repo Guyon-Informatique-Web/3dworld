@@ -1,5 +1,5 @@
 // Gestionnaire de variantes produit
-// Composant client : liste, creation, modification et suppression des variantes
+// Composant client : liste, création, modification et suppression des variantes
 // Affiche uniquement si le produit a le flag hasVariants active
 
 "use client";
@@ -24,26 +24,26 @@ export interface VariantData {
 interface VariantManagerProps {
   /** Identifiant du produit parent */
   productId: string;
-  /** Prix du produit parent (pour affichage par defaut) */
+  /** Prix du produit parent (pour affichage par défaut) */
   productPrice: string;
   /** Liste des variantes existantes */
   variants: VariantData[];
 }
 
-/** Paire cle/valeur pour les attributs */
+/** Paire clé/valeur pour les attributs */
 interface AttributePair {
   key: string;
   value: string;
 }
 
-/** Etat du formulaire de variante */
+/** État du formulaire de variante */
 interface VariantFormState {
   name: string;
   priceOverride: string;
   attributes: AttributePair[];
 }
 
-/** Formulaire vierge par defaut */
+/** Formulaire vierge par défaut */
 const EMPTY_FORM: VariantFormState = {
   name: "",
   priceOverride: "",
@@ -59,16 +59,16 @@ export default function VariantManager({
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
 
-  // Etat du formulaire (creation ou edition)
+  // État du formulaire (création ou édition)
   const [form, setForm] = useState<VariantFormState>(EMPTY_FORM);
-  // Identifiant de la variante en cours d'edition (null = creation)
+  // Identifiant de la variante en cours d'édition (null = création)
   const [editingId, setEditingId] = useState<string | null>(null);
   // Afficher/masquer le formulaire
   const [showForm, setShowForm] = useState(false);
   // Confirmation de suppression
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
-  /** Reinitialise le formulaire et ferme l'edition */
+  /** Réinitialise le formulaire et ferme l'édition */
   function resetForm() {
     setForm(EMPTY_FORM);
     setEditingId(null);
@@ -76,7 +76,7 @@ export default function VariantManager({
     setError(null);
   }
 
-  /** Ouvre le formulaire en mode creation */
+  /** Ouvre le formulaire en mode création */
   function handleAdd() {
     setForm(EMPTY_FORM);
     setEditingId(null);
@@ -85,9 +85,9 @@ export default function VariantManager({
     setSuccess(null);
   }
 
-  /** Ouvre le formulaire en mode edition avec les donnees de la variante */
+  /** Ouvre le formulaire en mode édition avec les données de la variante */
   function handleEdit(variant: VariantData) {
-    // Convertir les attributs JSON en paires cle/valeur
+    // Convertir les attributs JSON en paires clé/valeur
     const pairs: AttributePair[] = Object.entries(variant.attributes).map(
       ([key, value]) => ({ key, value })
     );
@@ -119,7 +119,7 @@ export default function VariantManager({
     }));
   }
 
-  /** Met a jour une paire d'attribut par index */
+  /** Met à jour une paire d'attribut par index */
   function updateAttribute(index: number, field: "key" | "value", newValue: string) {
     setForm((prev) => ({
       ...prev,
@@ -129,7 +129,7 @@ export default function VariantManager({
     }));
   }
 
-  /** Soumet le formulaire (creation ou edition) */
+  /** Soumet le formulaire (création ou édition) */
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setError(null);
@@ -140,7 +140,7 @@ export default function VariantManager({
     formData.set("name", form.name);
     formData.set("priceOverride", form.priceOverride);
 
-    // Convertir les paires attributs en objet JSON (filtrer les cles vides)
+    // Convertir les paires attributs en objet JSON (filtrer les clés vides)
     const attributesObj: Record<string, string> = {};
     for (const pair of form.attributes) {
       const trimmedKey = pair.key.trim();
@@ -156,7 +156,7 @@ export default function VariantManager({
         : await createVariant(productId, formData);
 
       if (result.success) {
-        setSuccess(editingId ? "Variante modifiee." : "Variante creee.");
+        setSuccess(editingId ? "Variante modifiée." : "Variante créée.");
         resetForm();
       } else {
         setError(result.error ?? "Une erreur est survenue.");
@@ -174,8 +174,8 @@ export default function VariantManager({
       setDeletingId(null);
 
       if (result.success) {
-        setSuccess("Variante supprimee.");
-        // Si on editait cette variante, fermer le formulaire
+        setSuccess("Variante supprimée.");
+        // Si on éditait cette variante, fermer le formulaire
         if (editingId === id) {
           resetForm();
         }
@@ -185,7 +185,7 @@ export default function VariantManager({
     });
   }
 
-  /** Active/desactive une variante */
+  /** Active/désactive une variante */
   function handleToggle(id: string) {
     setError(null);
     setSuccess(null);
@@ -201,7 +201,7 @@ export default function VariantManager({
   return (
     <div className="mx-auto max-w-3xl mt-6">
       <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
-        {/* En-tete avec titre et bouton d'ajout */}
+        {/* En-tête avec titre et bouton d'ajout */}
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-xl font-semibold text-text">
             Variantes du produit
@@ -218,7 +218,7 @@ export default function VariantManager({
           )}
         </div>
 
-        {/* Messages de succes et d'erreur */}
+        {/* Messages de succès et d'erreur */}
         {success && (
           <div className="mb-4 rounded-lg bg-green-50 px-4 py-3 text-sm text-green-700">
             {success}
@@ -308,14 +308,14 @@ export default function VariantManager({
                           Modifier
                         </button>
 
-                        {/* Bouton activer/desactiver */}
+                        {/* Bouton activer/désactiver */}
                         <button
                           type="button"
                           onClick={() => handleToggle(variant.id)}
                           disabled={isPending}
                           className="rounded px-2 py-1 text-xs font-medium text-amber-600 transition-colors hover:bg-amber-50 disabled:opacity-50"
                         >
-                          {variant.isActive ? "Desactiver" : "Activer"}
+                          {variant.isActive ? "Désactiver" : "Activer"}
                         </button>
 
                         {/* Bouton supprimer avec confirmation */}
@@ -358,11 +358,11 @@ export default function VariantManager({
         ) : (
           <p className="mb-4 text-sm text-text-light">
             Aucune variante pour ce produit. Cliquez sur &quot;Ajouter une
-            variante&quot; pour en creer une.
+            variante&quot; pour en créer une.
           </p>
         )}
 
-        {/* Formulaire de creation/edition de variante */}
+        {/* Formulaire de création/édition de variante */}
         {showForm && (
           <div className="rounded-lg border border-gray-200 bg-bg-alt p-4">
             <h3 className="mb-4 text-sm font-semibold text-text">
@@ -419,7 +419,7 @@ export default function VariantManager({
                 </p>
               </div>
 
-              {/* Attributs dynamiques (paires cle/valeur) */}
+              {/* Attributs dynamiques (paires clé/valeur) */}
               <div>
                 <div className="mb-2 flex items-center justify-between">
                   <label className="text-sm font-medium text-text">
@@ -438,14 +438,14 @@ export default function VariantManager({
                   <div className="space-y-2">
                     {form.attributes.map((attr, index) => (
                       <div key={index} className="flex items-center gap-2">
-                        {/* Champ cle */}
+                        {/* Champ clé */}
                         <input
                           type="text"
                           value={attr.key}
                           onChange={(e) =>
                             updateAttribute(index, "key", e.target.value)
                           }
-                          placeholder="Cle (ex: couleur)"
+                          placeholder="Clé (ex : couleur)"
                           className="flex-1 rounded-lg border border-gray-300 px-3 py-1.5 text-sm text-text placeholder:text-text-light focus:border-primary focus:ring-1 focus:ring-primary focus:outline-none"
                         />
                         {/* Champ valeur */}
@@ -484,7 +484,7 @@ export default function VariantManager({
                 ) : (
                   <p className="text-xs text-text-light">
                     Aucun attribut. Utilisez &quot;Ajouter un attribut&quot;
-                    pour definir des paires cle/valeur (ex: couleur=Blanc,
+                    pour définir des paires clé/valeur (ex: couleur=Blanc,
                     taille=Grande).
                   </p>
                 )}
@@ -501,7 +501,7 @@ export default function VariantManager({
                     ? "Enregistrement..."
                     : editingId
                       ? "Modifier"
-                      : "Creer"}
+                      : "Créer"}
                 </button>
                 <button
                   type="button"

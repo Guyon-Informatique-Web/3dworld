@@ -1,5 +1,5 @@
-// Formulaire de creation/edition d'un produit
-// Gere le nom, la description, le prix, la categorie, les images et le flag variantes
+// Formulaire de création/édition d'un produit
+// Gère le nom, la description, le prix, la catégorie, les images et le flag variantes
 
 "use client";
 
@@ -8,7 +8,7 @@ import { useRouter } from "next/navigation";
 import { createProduct, updateProduct } from "@/app/admin/produits/actions";
 import ImageUpload from "./ImageUpload";
 
-/** Donnees d'un produit existant (mode edition) */
+/** Données d'un produit existant (mode édition) */
 interface ProductData {
   id: string;
   name: string;
@@ -19,16 +19,16 @@ interface ProductData {
   hasVariants: boolean;
 }
 
-/** Categorie disponible pour le select */
+/** Catégorie disponible pour le select */
 interface CategoryOption {
   id: string;
   name: string;
 }
 
 interface ProductFormProps {
-  /** Produit a editer (absent = mode creation) */
+  /** Produit à éditer (absent = mode création) */
   product?: ProductData;
-  /** Liste des categories disponibles */
+  /** Liste des catégories disponibles */
   categories: CategoryOption[];
 }
 
@@ -38,16 +38,16 @@ interface ActionResult {
   error?: string;
 }
 
-/** Etat initial du formulaire */
+/** État initial du formulaire */
 const INITIAL_STATE: ActionResult = { success: false, error: undefined };
 
 export default function ProductForm({ product, categories }: ProductFormProps) {
   const router = useRouter();
   const isEditing = !!product;
 
-  // Etat des images (gere separement car composant client)
+  // État des images (géré séparément car composant client)
   const [images, setImages] = useState<string[]>(product?.images ?? []);
-  // Etat du flag variantes
+  // État du flag variantes
   const [hasVariants, setHasVariants] = useState(product?.hasVariants ?? false);
 
   /** Wrapper pour les server actions (creation ou edition) */
@@ -65,7 +65,7 @@ export default function ProductForm({ product, categories }: ProductFormProps) {
 
   const [state, dispatch, isPending] = useActionState(formAction, INITIAL_STATE);
 
-  // Rediriger vers la liste apres un succes
+  // Rediriger vers la liste après un succès
   useEffect(() => {
     if (state.success) {
       router.push("/admin/produits");
@@ -97,7 +97,7 @@ export default function ProductForm({ product, categories }: ProductFormProps) {
               type="text"
               required
               defaultValue={product?.name ?? ""}
-              placeholder="Ex : Dragon articule, Support telephone..."
+              placeholder="Ex : Dragon articulé, Support téléphone..."
               className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-text placeholder:text-text-light focus:border-primary focus:ring-1 focus:ring-primary focus:outline-none"
             />
           </div>
@@ -113,7 +113,7 @@ export default function ProductForm({ product, categories }: ProductFormProps) {
               rows={4}
               required
               defaultValue={product?.description ?? ""}
-              placeholder="Description detaillee du produit..."
+              placeholder="Description détaillée du produit..."
               className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-text placeholder:text-text-light focus:border-primary focus:ring-1 focus:ring-primary focus:outline-none resize-none"
             />
           </div>
@@ -141,7 +141,7 @@ export default function ProductForm({ product, categories }: ProductFormProps) {
             {/* Selection de categorie (obligatoire) */}
             <div>
               <label htmlFor="product-category" className="mb-1 block text-sm font-medium text-text">
-                Categorie <span className="text-red-500">*</span>
+                Catégorie <span className="text-red-500">*</span>
               </label>
               <select
                 id="product-category"
@@ -150,7 +150,7 @@ export default function ProductForm({ product, categories }: ProductFormProps) {
                 defaultValue={product?.categoryId ?? ""}
                 className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-text focus:border-primary focus:ring-1 focus:ring-primary focus:outline-none"
               >
-                <option value="">Choisir une categorie</option>
+                <option value="">Choisir une catégorie</option>
                 {categories.map((cat) => (
                   <option key={cat.id} value={cat.id}>
                     {cat.name}

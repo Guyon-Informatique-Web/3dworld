@@ -1,4 +1,4 @@
-// Resume du panier — sous-total, livraison, total, boutons d'action
+// Résumé du panier — sous-total, livraison, total, boutons d'action
 // Composant client car il lit le CartContext
 
 "use client";
@@ -8,7 +8,7 @@ import { useCart } from "@/context/CartContext";
 import { formatPrice } from "@/lib/cart";
 
 /**
- * Bloc resume du panier avec sous-total, info livraison et boutons.
+ * Bloc résumé du panier avec sous-total, info livraison et boutons.
  * Affiche dans la sidebar de la page panier.
  */
 export default function CartSummary() {
@@ -17,7 +17,7 @@ export default function CartSummary() {
   return (
     <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
       <h2 className="mb-4 text-lg font-bold text-text">
-        Recapitulatif
+        Récapitulatif
       </h2>
 
       {/* Lignes de detail */}
@@ -32,7 +32,7 @@ export default function CartSummary() {
         <div className="flex items-center justify-between text-sm">
           <span className="text-text-light">Frais de livraison</span>
           <span className="text-xs italic text-text-light">
-            Calcules a l&apos;etape suivante
+            Calculés à l&apos;étape suivante
           </span>
         </div>
       </div>

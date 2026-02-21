@@ -1,4 +1,4 @@
-// Formulaire des parametres de la boutique
+// Formulaire des paramètres de la boutique
 // Permet de configurer livraison, seuil gratuit et retrait sur place
 
 "use client";
@@ -6,7 +6,7 @@
 import { useActionState, useState } from "react";
 import { updateShopSettings } from "@/app/admin/parametres/actions";
 
-/** Donnees initiales des parametres (depuis Prisma ou valeurs par defaut) */
+/** Données initiales des paramètres (depuis Prisma ou valeurs par défaut) */
 interface ShopSettingsData {
   shippingFixedPrice: number;
   freeShippingThreshold: number | null;
@@ -15,7 +15,7 @@ interface ShopSettingsData {
 }
 
 interface ShopSettingsFormProps {
-  /** Parametres actuels de la boutique */
+  /** Paramètres actuels de la boutique */
   settings: ShopSettingsData;
 }
 
@@ -25,14 +25,14 @@ interface ActionResult {
   error?: string;
 }
 
-/** Etat initial du formulaire */
+/** État initial du formulaire */
 const INITIAL_STATE: ActionResult = { success: false, error: undefined };
 
 export default function ShopSettingsForm({ settings }: ShopSettingsFormProps) {
-  // Etat local pour le toggle retrait (afficher/masquer l'adresse)
+  // État local pour le toggle retrait (afficher/masquer l'adresse)
   const [pickupEnabled, setPickupEnabled] = useState(settings.pickupEnabled);
 
-  // Etat pour le message de succes (disparait apres 3 secondes)
+  // État pour le message de succès (disparaît après 3 secondes)
   const [showSuccess, setShowSuccess] = useState(false);
 
   // Server action avec useActionState
@@ -44,7 +44,7 @@ export default function ShopSettingsForm({ settings }: ShopSettingsFormProps) {
 
     if (result.success) {
       setShowSuccess(true);
-      // Masquer le message de succes apres 3 secondes
+      // Masquer le message de succès après 3 secondes
       setTimeout(() => setShowSuccess(false), 3000);
     }
 
@@ -86,7 +86,7 @@ export default function ShopSettingsForm({ settings }: ShopSettingsFormProps) {
                 </span>
               </div>
               <p className="mt-1 text-xs text-text-light">
-                Montant fixe applique a chaque commande livree.
+                Montant fixe appliqué à chaque commande livrée.
               </p>
             </div>
 
@@ -114,7 +114,7 @@ export default function ShopSettingsForm({ settings }: ShopSettingsFormProps) {
                 </span>
               </div>
               <p className="mt-1 text-xs text-text-light">
-                Laisser vide pour desactiver la livraison gratuite.
+                Laisser vide pour désactiver la livraison gratuite.
               </p>
             </div>
           </div>
@@ -125,7 +125,7 @@ export default function ShopSettingsForm({ settings }: ShopSettingsFormProps) {
           <h2 className="mb-4 text-lg font-semibold text-text">Retrait sur place</h2>
 
           <div className="space-y-4">
-            {/* Toggle retrait active */}
+            {/* Toggle retrait activé */}
             <div className="flex items-center gap-3">
               <label
                 htmlFor="pickupEnabled"
@@ -133,7 +133,7 @@ export default function ShopSettingsForm({ settings }: ShopSettingsFormProps) {
               >
                 Activer le retrait sur place
               </label>
-              {/* Champ hidden pour envoyer la valeur meme si la checkbox est decochee */}
+              {/* Champ hidden pour envoyer la valeur même si la checkbox est décochée */}
               <input type="hidden" name="pickupEnabled" value="false" />
               <input
                 id="pickupEnabled"
@@ -146,7 +146,7 @@ export default function ShopSettingsForm({ settings }: ShopSettingsFormProps) {
               />
             </div>
 
-            {/* Adresse de retrait (visible seulement si retrait active) */}
+            {/* Adresse de retrait (visible seulement si retrait activé) */}
             {pickupEnabled && (
               <div>
                 <label
@@ -165,7 +165,7 @@ export default function ShopSettingsForm({ settings }: ShopSettingsFormProps) {
                   className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-text placeholder:text-text-light focus:border-primary focus:ring-1 focus:ring-primary focus:outline-none resize-none"
                 />
                 <p className="mt-1 text-xs text-text-light">
-                  Adresse affichee au client lors du choix du mode de livraison.
+                  Adresse affichée au client lors du choix du mode de livraison.
                 </p>
               </div>
             )}
@@ -179,10 +179,10 @@ export default function ShopSettingsForm({ settings }: ShopSettingsFormProps) {
           </div>
         )}
 
-        {/* Message de succes */}
+        {/* Message de succès */}
         {showSuccess && (
           <div className="rounded-lg bg-green-50 px-4 py-3 text-sm text-green-700">
-            Parametres enregistres avec succes.
+            Paramètres enregistrés avec succès.
           </div>
         )}
 
@@ -193,7 +193,7 @@ export default function ShopSettingsForm({ settings }: ShopSettingsFormProps) {
             disabled={isPending}
             className="rounded-lg bg-primary px-6 py-2.5 text-sm font-medium text-white transition-colors hover:bg-primary-dark disabled:cursor-not-allowed disabled:opacity-50"
           >
-            {isPending ? "Enregistrement..." : "Enregistrer les parametres"}
+            {isPending ? "Enregistrement..." : "Enregistrer les paramètres"}
           </button>
         </div>
       </form>

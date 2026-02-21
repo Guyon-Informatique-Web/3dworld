@@ -1,5 +1,5 @@
-// Server Actions pour le CRUD des categories
-// Creation, modification, suppression et reordonnancement des categories
+// Server Actions pour le CRUD des catégories
+// Création, modification, suppression et réordonnancement des catégories
 
 "use server";
 
@@ -14,11 +14,11 @@ interface ActionResult {
 }
 
 /**
- * Genere un slug a partir d'un nom :
+ * Génère un slug à partir d'un nom :
  * - convertit en minuscules
- * - retire les accents et caracteres speciaux
+ * - retire les accents et caractères spéciaux
  * - remplace les espaces par des tirets
- * - supprime les tirets en debut/fin
+ * - supprime les tirets en début/fin
  */
 function generateSlug(name: string): string {
   return name
@@ -32,8 +32,8 @@ function generateSlug(name: string): string {
 }
 
 /**
- * Cree une nouvelle categorie.
- * Genere le slug automatiquement depuis le nom.
+ * Crée une nouvelle catégorie.
+ * Génère le slug automatiquement depuis le nom.
  */
 export async function createCategory(formData: FormData): Promise<ActionResult> {
   await requireAdmin();
@@ -44,33 +44,33 @@ export async function createCategory(formData: FormData): Promise<ActionResult> 
 
   // Validation du nom (obligatoire)
   if (!name || typeof name !== "string" || name.trim().length === 0) {
-    return { success: false, error: "Le nom de la categorie est obligatoire." };
+    return { success: false, error: "Le nom de la catégorie est obligatoire." };
   }
 
   const trimmedName = name.trim();
   const slug = generateSlug(trimmedName);
 
   if (slug.length === 0) {
-    return { success: false, error: "Le nom genere un slug invalide. Utilisez des caracteres alphanumeriques." };
+    return { success: false, error: "Le nom génère un slug invalide. Utilisez des caractères alphanumériques." };
   }
 
-  // Verifier l'unicite du slug
+  // Vérifier l'unicité du slug
   const existingCategory = await prisma.category.findUnique({
     where: { slug },
   });
 
   if (existingCategory) {
-    return { success: false, error: `Une categorie avec le slug "${slug}" existe deja.` };
+    return { success: false, error: `Une catégorie avec le slug "${slug}" existe déjà.` };
   }
 
-  // Determiner l'ordre : placer en dernier
+  // Déterminer l'ordre : placer en dernier
   const lastCategory = await prisma.category.findFirst({
     orderBy: { order: "desc" },
     select: { order: true },
   });
   const nextOrder = lastCategory ? lastCategory.order + 1 : 0;
 
-  // Creer la categorie
+  // Créer la catégorie
   await prisma.category.create({
     data: {
       name: trimmedName,
@@ -90,15 +90,15 @@ export async function createCategory(formData: FormData): Promise<ActionResult> 
 }
 
 /**
- * Met a jour une categorie existante.
- * Regenere le slug si le nom a change.
+ * Met à jour une catégorie existante.
+ * Régénère le slug si le nom a changé.
  */
 export async function updateCategory(id: string, formData: FormData): Promise<ActionResult> {
   await requireAdmin();
 
-  // Verification que l'id est fourni
+  // Vérification que l'id est fourni
   if (!id || id.trim().length === 0) {
-    return { success: false, error: "Identifiant de categorie manquant." };
+    return { success: false, error: "Identifiant de catégorie manquant." };
   }
 
   const name = formData.get("name");
@@ -107,17 +107,17 @@ export async function updateCategory(id: string, formData: FormData): Promise<Ac
 
   // Validation du nom (obligatoire)
   if (!name || typeof name !== "string" || name.trim().length === 0) {
-    return { success: false, error: "Le nom de la categorie est obligatoire." };
+    return { success: false, error: "Le nom de la catégorie est obligatoire." };
   }
 
   const trimmedName = name.trim();
   const slug = generateSlug(trimmedName);
 
   if (slug.length === 0) {
-    return { success: false, error: "Le nom genere un slug invalide. Utilisez des caracteres alphanumeriques." };
+    return { success: false, error: "Le nom génère un slug invalide. Utilisez des caractères alphanumériques." };
   }
 
-  // Verifier que la categorie existe
+  // Vérifier que la catégorie existe
   const existingCategory = await prisma.category.findUnique({
     where: { id },
   });
@@ -126,7 +126,7 @@ export async function updateCategory(id: string, formData: FormData): Promise<Ac
     return { success: false, error: "Categorie introuvable." };
   }
 
-  // Verifier l'unicite du slug (sauf si c'est la meme categorie)
+  // Vérifier l'unicité du slug (sauf si c'est la même catégorie)
   const slugConflict = await prisma.category.findUnique({
     where: { slug },
   });
@@ -135,7 +135,7 @@ export async function updateCategory(id: string, formData: FormData): Promise<Ac
     return { success: false, error: `Une autre categorie utilise deja le slug "${slug}".` };
   }
 
-  // Mettre a jour la categorie
+  // Mettre à jour la catégorie
   await prisma.category.update({
     where: { id },
     data: {
@@ -155,35 +155,35 @@ export async function updateCategory(id: string, formData: FormData): Promise<Ac
 }
 
 /**
- * Supprime une categorie.
- * Refuse la suppression si des produits sont lies a cette categorie.
+ * Supprime une catégorie.
+ * Refuse la suppression si des produits sont liés à cette catégorie.
  */
 export async function deleteCategory(id: string): Promise<ActionResult> {
   await requireAdmin();
 
   if (!id || id.trim().length === 0) {
-    return { success: false, error: "Identifiant de categorie manquant." };
+    return { success: false, error: "Identifiant de catégorie manquant." };
   }
 
-  // Verifier que la categorie existe
+  // Vérifier que la catégorie existe
   const category = await prisma.category.findUnique({
     where: { id },
     include: { _count: { select: { products: true } } },
   });
 
   if (!category) {
-    return { success: false, error: "Categorie introuvable." };
+    return { success: false, error: "Catégorie introuvable." };
   }
 
-  // Verifier qu'aucun produit n'est lie
+  // Vérifier qu'aucun produit n'est lié
   if (category._count.products > 0) {
     return {
       success: false,
-      error: `Impossible de supprimer cette categorie : ${category._count.products} produit(s) y sont rattache(s). Deplacez-les d'abord.`,
+      error: `Impossible de supprimer cette catégorie : ${category._count.products} produit(s) y sont rattaché(s). Déplacez-les d'abord.`,
     };
   }
 
-  // Supprimer la categorie
+  // Supprimer la catégorie
   await prisma.category.delete({
     where: { id },
   });
@@ -195,8 +195,8 @@ export async function deleteCategory(id: string): Promise<ActionResult> {
 }
 
 /**
- * Reordonne les categories selon l'ordre du tableau d'identifiants.
- * L'index dans le tableau correspond a la nouvelle valeur de `order`.
+ * Réordonne les catégories selon l'ordre du tableau d'identifiants.
+ * L'index dans le tableau correspond à la nouvelle valeur de `order`.
  */
 export async function reorderCategories(ids: string[]): Promise<ActionResult> {
   await requireAdmin();
@@ -205,7 +205,7 @@ export async function reorderCategories(ids: string[]): Promise<ActionResult> {
     return { success: false, error: "Liste d'identifiants vide." };
   }
 
-  // Mettre a jour l'ordre de chaque categorie dans une transaction
+  // Mettre à jour l'ordre de chaque catégorie dans une transaction
   await prisma.$transaction(
     ids.map((id, index) =>
       prisma.category.update({

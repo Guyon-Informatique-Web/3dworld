@@ -1,32 +1,32 @@
-// Badge de statut de commande — affiche un badge colore selon le statut
-// Composant reutilisable dans la liste et le detail des commandes
+// Badge de statut de commande — affiche un badge coloré selon le statut
+// Composant réutilisable dans la liste et le détail des commandes
 
 import type { OrderStatus } from "@/generated/prisma/client";
 
-/** Configuration de chaque statut : label francais et classes CSS */
+/** Configuration de chaque statut : label français et classes CSS */
 const STATUS_CONFIG: Record<OrderStatus, { label: string; classes: string }> = {
   PENDING: {
     label: "En attente",
     classes: "bg-amber-100 text-amber-800",
   },
   PAID: {
-    label: "Payee",
+    label: "Payée",
     classes: "bg-blue-100 text-blue-800",
   },
   PROCESSING: {
-    label: "En preparation",
+    label: "En préparation",
     classes: "bg-orange-100 text-orange-800",
   },
   SHIPPED: {
-    label: "Expediee",
+    label: "Expédiée",
     classes: "bg-indigo-100 text-indigo-800",
   },
   DELIVERED: {
-    label: "Livree",
+    label: "Livrée",
     classes: "bg-green-100 text-green-800",
   },
   CANCELLED: {
-    label: "Annulee",
+    label: "Annulée",
     classes: "bg-red-100 text-red-800",
   },
 };
@@ -37,7 +37,7 @@ interface OrderStatusBadgeProps {
 }
 
 /**
- * Affiche le statut d'une commande sous forme de badge colore.
+ * Affiche le statut d'une commande sous forme de badge coloré.
  * Chaque statut a une couleur distincte pour faciliter la lecture rapide.
  */
 export default function OrderStatusBadge({ status }: OrderStatusBadgeProps) {

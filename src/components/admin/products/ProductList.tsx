@@ -1,5 +1,5 @@
 // Liste des produits admin — table avec miniature, filtres et actions
-// Client component pour gerer l'interactivite (filtres, confirmation suppression, toggle)
+// Client component pour gérer l'interactivité (filtres, confirmation suppression, toggle)
 
 "use client";
 
@@ -33,7 +33,7 @@ interface CategoryOption {
 type StatusFilter = "all" | "active" | "inactive";
 
 interface ProductListProps {
-  /** Liste des produits charges cote serveur */
+  /** Liste des produits chargés côté serveur */
   products: ProductWithCategory[];
   /** Liste des categories pour le filtre */
   categories: CategoryOption[];
@@ -51,9 +51,9 @@ export default function ProductList({ products, categories }: ProductListProps) 
   // Identifiant du produit en cours de toggle
   const [togglingId, setTogglingId] = useState<string | null>(null);
 
-  /** Filtrer les produits selon les criteres selectionnes */
+  /** Filtrer les produits selon les critères sélectionnés */
   const filteredProducts = products.filter((product) => {
-    // Filtre par categorie
+    // Filtre par catégorie
     if (categoryFilter !== "all" && product.category.id !== categoryFilter) {
       return false;
     }
@@ -66,7 +66,7 @@ export default function ProductList({ products, categories }: ProductListProps) 
   /** Supprimer un produit avec confirmation */
   async function handleDelete(product: ProductWithCategory) {
     const confirmed = window.confirm(
-      `Supprimer le produit "${product.name}" ? Cette action est irreversible si aucune commande n'y est liee.`
+      `Supprimer le produit "${product.name}" ? Cette action est irréversible si aucune commande n'y est liée.`
     );
 
     if (!confirmed) return;
@@ -83,7 +83,7 @@ export default function ProductList({ products, categories }: ProductListProps) 
     }
   }
 
-  /** Activer/desactiver un produit */
+  /** Activer/désactiver un produit */
   async function handleToggle(product: ProductWithCategory) {
     setError(null);
     setTogglingId(product.id);
@@ -99,7 +99,7 @@ export default function ProductList({ products, categories }: ProductListProps) 
 
   /**
    * Formate un prix en euros.
-   * Utilise le format francais avec virgule decimale.
+   * Utilise le format français avec virgule décimale.
    */
   function formatPrice(price: string): string {
     const value = parseFloat(price);
@@ -111,7 +111,7 @@ export default function ProductList({ products, categories }: ProductListProps) 
 
   return (
     <div className="space-y-6">
-      {/* En-tete avec titre et bouton creation */}
+      {/* En-tête avec titre et bouton création */}
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-text">Produits</h1>
         <Link
@@ -124,13 +124,13 @@ export default function ProductList({ products, categories }: ProductListProps) 
 
       {/* Filtres */}
       <div className="flex flex-wrap items-center gap-3">
-        {/* Filtre par categorie */}
+        {/* Filtre par catégorie */}
         <select
           value={categoryFilter}
           onChange={(e) => setCategoryFilter(e.target.value)}
           className="rounded-lg border border-gray-300 px-3 py-2 text-sm text-text focus:border-primary focus:ring-1 focus:ring-primary focus:outline-none"
         >
-          <option value="all">Toutes les categories</option>
+          <option value="all">Toutes les catégories</option>
           {categories.map((cat) => (
             <option key={cat.id} value={cat.id}>
               {cat.name}
@@ -149,7 +149,7 @@ export default function ProductList({ products, categories }: ProductListProps) 
           <option value="inactive">Inactifs</option>
         </select>
 
-        {/* Compteur de resultats */}
+        {/* Compteur de résultats */}
         <span className="text-sm text-text-light">
           {filteredProducts.length} produit{filteredProducts.length !== 1 ? "s" : ""}
         </span>
@@ -168,11 +168,11 @@ export default function ProductList({ products, categories }: ProductListProps) 
           <p className="text-text-light">
             {products.length === 0
               ? "Aucun produit pour le moment."
-              : "Aucun produit ne correspond aux filtres selectionnes."}
+              : "Aucun produit ne correspond aux filtres sélectionnés."}
           </p>
           {products.length === 0 && (
             <p className="mt-1 text-sm text-text-light">
-              Cliquez sur &quot;Nouveau produit&quot; pour en creer un.
+              Cliquez sur &quot;Nouveau produit&quot; pour en créer un.
             </p>
           )}
         </div>
@@ -192,7 +192,7 @@ export default function ProductList({ products, categories }: ProductListProps) 
                     Prix
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-text-light">
-                    Categorie
+                    Catégorie
                   </th>
                   <th className="px-6 py-3 text-center text-xs font-semibold uppercase tracking-wider text-text-light">
                     Statut
@@ -251,7 +251,7 @@ export default function ProductList({ products, categories }: ProductListProps) 
                       {formatPrice(product.price)}
                     </td>
 
-                    {/* Categorie */}
+                    {/* Catégorie */}
                     <td className="px-6 py-4 text-sm text-text-light">
                       {product.category.name}
                     </td>
@@ -280,7 +280,7 @@ export default function ProductList({ products, categories }: ProductListProps) 
                           Modifier
                         </Link>
 
-                        {/* Activer/Desactiver */}
+                        {/* Activer/Désactiver */}
                         <button
                           onClick={() => handleToggle(product)}
                           disabled={togglingId === product.id}
@@ -289,7 +289,7 @@ export default function ProductList({ products, categories }: ProductListProps) 
                           {togglingId === product.id
                             ? "..."
                             : product.isActive
-                              ? "Desactiver"
+                              ? "Désactiver"
                               : "Activer"}
                         </button>
 

@@ -1,5 +1,5 @@
-// Liste des categories admin — table avec actions modifier/supprimer
-// Client component pour gerer l'interactivite (formulaire, confirmation, etc.)
+// Liste des catégories admin — table avec actions modifier/supprimer
+// Client component pour gérer l'interactivité (formulaire, confirmation, etc.)
 
 "use client";
 
@@ -7,7 +7,7 @@ import { useState, useCallback } from "react";
 import { deleteCategory } from "@/app/admin/categories/actions";
 import CategoryForm from "./CategoryForm";
 
-/** Donnees d'une categorie avec le nombre de produits */
+/** Données d'une catégorie avec le nombre de produits */
 interface CategoryWithCount {
   id: string;
   name: string;
@@ -21,44 +21,44 @@ interface CategoryWithCount {
 }
 
 interface CategoryListProps {
-  /** Liste des categories chargees cote serveur */
+  /** Liste des catégories chargées côté serveur */
   categories: CategoryWithCount[];
 }
 
 export default function CategoryList({ categories }: CategoryListProps) {
-  // Categorie en cours d'edition (null = aucune)
+  // Catégorie en cours d'édition (null = aucune)
   const [editingCategory, setEditingCategory] = useState<CategoryWithCount | null>(null);
-  // Affichage du formulaire de creation
+  // Affichage du formulaire de création
   const [showCreateForm, setShowCreateForm] = useState(false);
   // Message d'erreur global (ex: suppression impossible)
   const [error, setError] = useState<string | null>(null);
-  // Identifiant de la categorie en cours de suppression (pour desactiver le bouton)
+  // Identifiant de la catégorie en cours de suppression (pour désactiver le bouton)
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
-  /** Fermer le formulaire (creation ou edition) */
+  /** Fermer le formulaire (création ou édition) */
   const handleCloseForm = useCallback(() => {
     setEditingCategory(null);
     setShowCreateForm(false);
   }, []);
 
-  /** Ouvrir le formulaire d'edition pour une categorie */
+  /** Ouvrir le formulaire d'édition pour une catégorie */
   function handleEdit(category: CategoryWithCount) {
     setShowCreateForm(false);
     setEditingCategory(category);
     setError(null);
   }
 
-  /** Ouvrir le formulaire de creation */
+  /** Ouvrir le formulaire de création */
   function handleCreate() {
     setEditingCategory(null);
     setShowCreateForm(true);
     setError(null);
   }
 
-  /** Supprimer une categorie avec confirmation */
+  /** Supprimer une catégorie avec confirmation */
   async function handleDelete(category: CategoryWithCount) {
     const confirmed = window.confirm(
-      `Supprimer la categorie "${category.name}" ? Cette action est irreversible.`
+      `Supprimer la catégorie "${category.name}" ? Cette action est irréversible.`
     );
 
     if (!confirmed) return;
@@ -79,12 +79,12 @@ export default function CategoryList({ categories }: CategoryListProps) {
     <div className="space-y-6">
       {/* Bouton de creation */}
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-text">Categories</h1>
+        <h1 className="text-2xl font-bold text-text">Catégories</h1>
         <button
           onClick={handleCreate}
           className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-primary-dark"
         >
-          Nouvelle categorie
+          Nouvelle catégorie
         </button>
       </div>
 
@@ -95,12 +95,12 @@ export default function CategoryList({ categories }: CategoryListProps) {
         </div>
       )}
 
-      {/* Formulaire de creation */}
+      {/* Formulaire de création */}
       {showCreateForm && (
         <CategoryForm onClose={handleCloseForm} />
       )}
 
-      {/* Formulaire d'edition */}
+      {/* Formulaire d'édition */}
       {editingCategory && (
         <CategoryForm
           category={{

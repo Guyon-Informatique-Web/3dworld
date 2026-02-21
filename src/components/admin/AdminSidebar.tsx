@@ -50,7 +50,7 @@ const ADMIN_LINKS = [
     ),
   },
   {
-    label: "Categories",
+    label: "Catégories",
     href: "/admin/categories",
     icon: (
       <svg
@@ -88,7 +88,7 @@ const ADMIN_LINKS = [
     ),
   },
   {
-    label: "Parametres",
+    label: "Paramètres",
     href: "/admin/parametres",
     icon: (
       <svg
