@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import Logo from "@/components/ui/Logo";
 import MobileMenu from "@/components/layout/MobileMenu";
+import CartBadge from "@/components/layout/CartBadge";
 
 /** Liens de navigation principaux */
 const NAV_LINKS = [
@@ -80,8 +81,11 @@ export default function Header() {
             ))}
           </ul>
 
-          {/* Bouton CTA desktop + Bouton hamburger mobile */}
+          {/* Panier + CTA desktop + Bouton hamburger mobile */}
           <div className="flex items-center gap-3">
+            {/* Badge panier — visible sur tous les ecrans */}
+            <CartBadge />
+
             {/* CTA desktop */}
             <Link
               href="/contact"
