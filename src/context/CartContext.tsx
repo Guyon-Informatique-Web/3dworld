@@ -129,12 +129,12 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
 /**
  * Hook pour acceder au contexte du panier.
- * Doit etre utilise a l'interieur d'un CartProvider.
+ * Doit être utilisé à l'intérieur d'un CartProvider.
  */
 export function useCart(): CartContextValue {
   const context = useContext(CartContext);
   if (!context) {
-    throw new Error("useCart() doit etre utilise a l'interieur d'un <CartProvider>");
+    throw new Error("useCart() doit être utilisé à l'intérieur d'un <CartProvider>");
   }
   return context;
 }

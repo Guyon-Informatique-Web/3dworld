@@ -72,7 +72,7 @@ export default function ProductDetailClient({
         />
       )}
 
-      {/* Separateur visuel */}
+      {/* Séparateur visuel */}
       <hr className="border-gray-200" />
 
       {/* Bouton ajout au panier */}

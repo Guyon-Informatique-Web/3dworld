@@ -1,6 +1,6 @@
 // Page checkout — formulaire de commande avant paiement Stripe
-// Server Component pour charger les parametres boutique (frais de livraison, retrait)
-// Le formulaire client (CheckoutForm) recoit les settings en props
+// Server Component pour charger les paramètres boutique (frais de livraison, retrait)
+// Le formulaire client (CheckoutForm) reçoit les settings en props
 
 import type { Metadata } from "next";
 import { prisma } from "@/lib/prisma";
@@ -16,7 +16,7 @@ export const metadata: Metadata = {
 };
 
 export default async function CheckoutPage() {
-  // Charger les parametres boutique pour les frais de livraison
+  // Charger les paramètres boutique pour les frais de livraison
   const settings = await prisma.shopSettings.findUnique({
     where: { id: "default" },
     select: {
@@ -27,7 +27,7 @@ export default async function CheckoutPage() {
     },
   });
 
-  // Valeurs par defaut si aucun parametre configure
+  // Valeurs par défaut si aucun paramètre configuré
   const shopSettings = {
     shippingFixedPrice: settings ? Number(settings.shippingFixedPrice) : 5,
     freeShippingThreshold: settings?.freeShippingThreshold

@@ -26,8 +26,8 @@ const SORT_OPTIONS = [
 ] as const;
 
 /**
- * Barre de filtres horizontale : boutons categorie (style pills) + menu de tri.
- * Scrollable sur mobile, centree sur desktop.
+ * Barre de filtres horizontale : boutons catégorie (style pills) + menu de tri.
+ * Scrollable sur mobile, centrée sur desktop.
  * Inspiration : GalleryFilter existant du site.
  */
 export default function ShopFilter({
@@ -38,7 +38,7 @@ export default function ShopFilter({
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  /** Met a jour un parametre de recherche dans l'URL */
+  /** Met à jour un paramètre de recherche dans l'URL */
   const updateParam = useCallback(
     (key: string, value: string | null) => {
       const params = new URLSearchParams(searchParams.toString());
@@ -57,7 +57,7 @@ export default function ShopFilter({
     [router, searchParams],
   );
 
-  /** Gestion du clic sur une categorie */
+  /** Gestion du clic sur une catégorie */
   const handleCategoryChange = useCallback(
     (slug: string | null) => {
       updateParam("categorie", slug);
@@ -68,7 +68,7 @@ export default function ShopFilter({
   /** Gestion du changement de tri */
   const handleSortChange = useCallback(
     (value: string) => {
-      // "recent" est la valeur par defaut, on la supprime de l'URL
+      // "recent" est la valeur par défaut, on la supprime de l'URL
       updateParam("tri", value === "recent" ? null : value);
     },
     [updateParam],
@@ -76,7 +76,7 @@ export default function ShopFilter({
 
   return (
     <div className="mb-10 flex flex-col items-center gap-4 px-4 sm:flex-row sm:justify-between">
-      {/* Filtres par categorie */}
+      {/* Filtres par catégorie */}
       <div className="flex gap-3 overflow-x-auto pb-2 sm:flex-wrap sm:justify-center sm:pb-0">
         {/* Bouton "Toutes" */}
         <button

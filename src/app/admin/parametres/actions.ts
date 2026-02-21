@@ -1,4 +1,4 @@
-// Server Action pour la mise a jour des parametres de la boutique
+// Server Action pour la mise à jour des paramètres de la boutique
 // Upsert de la ligne unique ShopSettings (id="default")
 
 "use server";
@@ -14,8 +14,8 @@ interface ActionResult {
 }
 
 /**
- * Met a jour les parametres de la boutique.
- * Cree la ligne si elle n'existe pas encore (upsert avec id="default").
+ * Met à jour les paramètres de la boutique.
+ * Crée la ligne si elle n'existe pas encore (upsert avec id="default").
  * Valide les champs avant enregistrement.
  */
 export async function updateShopSettings(formData: FormData): Promise<ActionResult> {
@@ -41,11 +41,11 @@ export async function updateShopSettings(formData: FormData): Promise<ActionResu
   if (isNaN(shippingFixedPrice) || shippingFixedPrice < 0) {
     return {
       success: false,
-      error: "Les frais de livraison doivent etre un nombre positif ou zero.",
+      error: "Les frais de livraison doivent être un nombre positif ou zéro.",
     };
   }
 
-  // Validation du seuil de livraison gratuite (optionnel, mais si renseigne doit etre > 0)
+  // Validation du seuil de livraison gratuite (optionnel, mais si renseigné doit être > 0)
   let freeShippingThreshold: number | null = null;
 
   if (
@@ -58,7 +58,7 @@ export async function updateShopSettings(formData: FormData): Promise<ActionResu
     if (isNaN(parsedThreshold) || parsedThreshold <= 0) {
       return {
         success: false,
-        error: "Le seuil de livraison gratuite doit etre un nombre strictement positif.",
+        error: "Le seuil de livraison gratuite doit être un nombre strictement positif.",
       };
     }
 
@@ -76,7 +76,7 @@ export async function updateShopSettings(formData: FormData): Promise<ActionResu
     ) {
       return {
         success: false,
-        error: "L'adresse de retrait est obligatoire quand le retrait sur place est active.",
+        error: "L'adresse de retrait est obligatoire quand le retrait sur place est activé.",
       };
     }
     pickupAddressValue = pickupAddress.trim();
@@ -100,7 +100,7 @@ export async function updateShopSettings(formData: FormData): Promise<ActionResu
     },
   });
 
-  // Revalider les pages qui utilisent les parametres
+  // Revalider les pages qui utilisent les paramètres
   revalidatePath("/admin/parametres");
   revalidatePath("/boutique");
 

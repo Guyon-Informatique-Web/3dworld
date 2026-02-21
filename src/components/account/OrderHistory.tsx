@@ -30,7 +30,7 @@ function formatPrice(amount: number): string {
   }).format(amount);
 }
 
-/** Formate une date au format francais (jour mois annee) */
+/** Formate une date au format français (jour mois année) */
 function formatDate(date: Date): string {
   return new Intl.DateTimeFormat("fr-FR", {
     dateStyle: "long",
@@ -67,7 +67,7 @@ export default function OrderHistory({ orders }: OrderHistoryProps) {
           Aucune commande pour le moment
         </h2>
         <p className="mb-6 text-text-light">
-          Decouvrez nos produits et passez votre premiere commande.
+          Découvrez nos produits et passez votre première commande.
         </p>
         <Link
           href="/boutique"
@@ -98,7 +98,7 @@ export default function OrderHistory({ orders }: OrderHistoryProps) {
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               {/* Infos principales */}
               <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:gap-4">
-                {/* Numero de commande */}
+                {/* Numéro de commande */}
                 <span className="font-mono text-sm font-semibold text-text">
                   #{order.id.slice(0, 8).toUpperCase()}
                 </span>
@@ -121,7 +121,7 @@ export default function OrderHistory({ orders }: OrderHistoryProps) {
                   {formatPrice(Number(order.totalAmount))}
                 </span>
 
-                {/* Fleche (visible au hover) */}
+                {/* Flèche (visible au hover) */}
                 <svg
                   width="16"
                   height="16"

@@ -62,8 +62,8 @@ function PlaceholderIcon() {
 
 /**
  * Calcule le prix d'affichage du produit.
- * Si le produit a des variantes actives avec un prix override inferieur,
- * retourne { prefix: "A partir de", price: minPrice }.
+ * Si le produit a des variantes actives avec un prix override inférieur,
+ * retourne { prefix: "À partir de", price: minPrice }.
  * Sinon retourne le prix de base.
  */
 function getDisplayPrice(product: ProductCardData): {
@@ -74,7 +74,7 @@ function getDisplayPrice(product: ProductCardData): {
     return { prefix: null, price: formatPrice(product.price) };
   }
 
-  // Recuperer les prix des variantes actives qui ont un override
+  // Récupérer les prix des variantes actives qui ont un override
   const variantPrices = product.variants
     .filter((v) => v.isActive && v.priceOverride !== null)
     .map((v) => v.priceOverride as number);
@@ -85,7 +85,7 @@ function getDisplayPrice(product: ProductCardData): {
 
   const minVariantPrice = Math.min(...variantPrices);
 
-  // Si une variante est moins chere que le prix de base
+  // Si une variante est moins chère que le prix de base
   if (minVariantPrice < product.price) {
     return {
       prefix: "\u00C0 partir de",
@@ -98,7 +98,7 @@ function getDisplayPrice(product: ProductCardData): {
 
 /**
  * Carte produit individuelle pour la boutique.
- * Affiche l'image, le nom, le prix (avec prefix si variantes) et la categorie.
+ * Affiche l'image, le nom, le prix (avec prefix si variantes) et la catégorie.
  * Lien vers la fiche produit /boutique/[slug].
  */
 export default function ProductCard({ product }: ProductCardProps) {
@@ -126,7 +126,7 @@ export default function ProductCard({ product }: ProductCardProps) {
           </div>
         )}
 
-        {/* Badge categorie en overlay */}
+        {/* Badge catégorie en overlay */}
         <span className="absolute top-3 left-3 rounded-full bg-primary/90 px-3 py-1 text-xs font-medium text-white backdrop-blur-sm">
           {product.category.name}
         </span>

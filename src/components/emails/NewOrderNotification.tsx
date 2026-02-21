@@ -49,7 +49,7 @@ export function NewOrderNotification({ order, appUrl }: NewOrderNotificationProp
             </tr>
             {order.phone && (
               <tr>
-                <td style={{ padding: "4px 0", fontSize: "14px", color: "#888888" }}>Telephone</td>
+                <td style={{ padding: "4px 0", fontSize: "14px", color: "#888888" }}>Téléphone</td>
                 <td style={{ padding: "4px 0", fontSize: "14px", color: "#333333" }}>{order.phone}</td>
               </tr>
             )}

@@ -22,7 +22,7 @@ export default async function MonCompteLayout({
       <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm sm:p-8">
         <AccountHeader user={user} />
 
-        {/* Separateur */}
+        {/* Séparateur */}
         <hr className="my-6 border-gray-100" />
 
         {/* Contenu de la page enfant */}

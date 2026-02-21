@@ -67,7 +67,7 @@ export function OrderStatusUpdate({ order, newStatus }: OrderStatusUpdateProps) 
           <table style={{ width: "100%" }}>
             <tbody>
               <tr>
-                <td style={{ padding: "4px 0", fontSize: "14px", color: "#888888" }}>Numero de commande</td>
+                <td style={{ padding: "4px 0", fontSize: "14px", color: "#888888" }}>Numéro de commande</td>
                 <td style={{ padding: "4px 0", fontSize: "14px", color: "#333333", fontWeight: 600, textAlign: "right" }}>#{shortId}</td>
               </tr>
               <tr>
@@ -87,7 +87,7 @@ export function OrderStatusUpdate({ order, newStatus }: OrderStatusUpdateProps) 
         </div>
 
         {/* Articles */}
-        <h3 style={{ fontSize: "15px", color: "#333333", marginBottom: "10px" }}>Articles commandes</h3>
+        <h3 style={{ fontSize: "15px", color: "#333333", marginBottom: "10px" }}>Articles commandés</h3>
         <table style={{ width: "100%", borderCollapse: "collapse", marginBottom: "20px" }}>
           <tbody>
             {order.items.map((item, index) => {
@@ -111,7 +111,7 @@ export function OrderStatusUpdate({ order, newStatus }: OrderStatusUpdateProps) 
 
         {/* Message de contact */}
         <p style={{ fontSize: "13px", color: "#999999", textAlign: "center", marginTop: "16px" }}>
-          Une question ? Repondez directement a cet email.
+          Une question ? Répondez directement à cet email.
         </p>
       </div>
 

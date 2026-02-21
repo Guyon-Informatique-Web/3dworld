@@ -32,7 +32,7 @@ export default async function EditProductPage({ params }: EditProductPageProps) 
     notFound();
   }
 
-  // Charger les categories actives pour le select du formulaire
+  // Charger les catégories actives pour le select du formulaire
   const categories = await prisma.category.findMany({
     where: { isActive: true },
     orderBy: [{ order: "asc" }, { name: "asc" }],

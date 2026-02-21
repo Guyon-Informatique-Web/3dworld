@@ -123,7 +123,7 @@ export async function updateCategory(id: string, formData: FormData): Promise<Ac
   });
 
   if (!existingCategory) {
-    return { success: false, error: "Categorie introuvable." };
+    return { success: false, error: "Catégorie introuvable." };
   }
 
   // Vérifier l'unicité du slug (sauf si c'est la même catégorie)
@@ -132,7 +132,7 @@ export async function updateCategory(id: string, formData: FormData): Promise<Ac
   });
 
   if (slugConflict && slugConflict.id !== id) {
-    return { success: false, error: `Une autre categorie utilise deja le slug "${slug}".` };
+    return { success: false, error: `Une autre catégorie utilise déjà le slug "${slug}".` };
   }
 
   // Mettre à jour la catégorie

@@ -77,7 +77,7 @@ export default function CategoryList({ categories }: CategoryListProps) {
 
   return (
     <div className="space-y-6">
-      {/* Bouton de creation */}
+      {/* Bouton de création */}
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-text">Catégories</h1>
         <button
@@ -113,12 +113,12 @@ export default function CategoryList({ categories }: CategoryListProps) {
         />
       )}
 
-      {/* Table des categories */}
+      {/* Table des catégories */}
       {categories.length === 0 ? (
         <div className="rounded-xl border border-gray-200 bg-white p-12 text-center">
-          <p className="text-text-light">Aucune categorie pour le moment.</p>
+          <p className="text-text-light">Aucune catégorie pour le moment.</p>
           <p className="mt-1 text-sm text-text-light">
-            Cliquez sur &quot;Nouvelle categorie&quot; pour en creer une.
+            Cliquez sur &quot;Nouvelle catégorie&quot; pour en créer une.
           </p>
         </div>
       ) : (

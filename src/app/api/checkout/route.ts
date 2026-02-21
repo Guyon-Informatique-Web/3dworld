@@ -1,6 +1,6 @@
-// POST /api/checkout — cree une session Stripe Checkout
-// Verifie les prix en BDD, calcule la livraison, cree la commande PENDING puis la session Stripe
-// NE FAIT JAMAIS confiance aux prix envoyes par le client
+// POST /api/checkout — crée une session Stripe Checkout
+// Vérifie les prix en BDD, calcule la livraison, crée la commande PENDING puis la session Stripe
+// NE FAIT JAMAIS confiance aux prix envoyés par le client
 
 import { NextResponse } from "next/server";
 import { stripe } from "@/lib/stripe";
@@ -39,15 +39,15 @@ export async function POST(request: Request) {
       !body.shippingMethod
     ) {
       return NextResponse.json(
-        { error: "Donnees manquantes : articles, nom, email et methode de livraison requis." },
+        { error: "Données manquantes : articles, nom, email et méthode de livraison requis." },
         { status: 400 }
       );
     }
 
-    // Verifier que la methode de livraison est valide
+    // Vérifier que la méthode de livraison est valide
     if (body.shippingMethod !== "DELIVERY" && body.shippingMethod !== "PICKUP") {
       return NextResponse.json(
-        { error: "Methode de livraison invalide." },
+        { error: "Méthode de livraison invalide." },
         { status: 400 }
       );
     }
@@ -60,7 +60,7 @@ export async function POST(request: Request) {
       );
     }
 
-    // Recuperer l'utilisateur connecte (optionnel, on accepte les commandes invites)
+    // Récupérer l'utilisateur connecté (optionnel, on accepte les commandes invités)
     let userId: string | undefined;
     try {
       const supabase = await createClient();
@@ -78,10 +78,10 @@ export async function POST(request: Request) {
         }
       }
     } catch {
-      // Pas de session — commande invitee, on continue
+      // Pas de session — commande invitée, on continue
     }
 
-    // Recuperer les produits et variantes depuis la BDD pour verifier les prix
+    // Récupérer les produits et variantes depuis la BDD pour vérifier les prix
     const productIds = [...new Set(body.items.map((i) => i.productId))];
     const products = await prisma.product.findMany({
       where: { id: { in: productIds }, isActive: true },
@@ -126,12 +126,12 @@ export async function POST(request: Request) {
 
       if (item.quantity < 1 || !Number.isInteger(item.quantity)) {
         return NextResponse.json(
-          { error: `Quantite invalide pour ${product.name}.` },
+          { error: `Quantité invalide pour ${product.name}.` },
           { status: 400 }
         );
       }
 
-      // Determiner le prix unitaire (variante ou produit de base)
+      // Déterminer le prix unitaire (variante ou produit de base)
       let unitPrice = Number(product.price);
       let itemName = product.name;
 
@@ -168,7 +168,7 @@ export async function POST(request: Request) {
       });
     }
 
-    // Charger les parametres boutique pour les frais de livraison
+    // Charger les paramètres boutique pour les frais de livraison
     const settings = await prisma.shopSettings.findUnique({
       where: { id: "default" },
     });
@@ -181,7 +181,7 @@ export async function POST(request: Request) {
         ? Number(settings.freeShippingThreshold)
         : null;
 
-      // Livraison gratuite si le sous-total depasse le seuil
+      // Livraison gratuite si le sous-total dépasse le seuil
       if (threshold && subtotal >= threshold) {
         shippingCost = 0;
       } else {
@@ -203,7 +203,7 @@ export async function POST(request: Request) {
 
     const totalAmount = subtotal + shippingCost;
 
-    // Creer la commande PENDING en base
+    // Créer la commande PENDING en base
     const order = await createOrder({
       userId,
       email: body.email.trim(),
@@ -219,7 +219,7 @@ export async function POST(request: Request) {
     // Construire les URLs de retour
     const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
 
-    // Creer la session Stripe Checkout
+    // Créer la session Stripe Checkout
     const session = await stripe.checkout.sessions.create({
       mode: "payment",
       payment_method_types: ["card"],
@@ -234,9 +234,9 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ url: session.url });
   } catch (error) {
-    console.error("Erreur creation session checkout:", error);
+    console.error("Erreur création session checkout:", error);
     return NextResponse.json(
-      { error: "Erreur lors de la creation de la session de paiement." },
+      { error: "Erreur lors de la création de la session de paiement." },
       { status: 500 }
     );
   }

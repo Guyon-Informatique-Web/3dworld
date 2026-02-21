@@ -41,11 +41,11 @@ const shippingMethodLabels: Record<string, string> = {
 /** Labels des statuts de commande */
 const statusLabels: Record<string, { label: string; color: string }> = {
   PENDING: { label: "En attente de paiement", color: "bg-yellow-100 text-yellow-800" },
-  PAID: { label: "Payee", color: "bg-green-100 text-green-800" },
-  PROCESSING: { label: "En preparation", color: "bg-blue-100 text-blue-800" },
-  SHIPPED: { label: "Expediee", color: "bg-purple-100 text-purple-800" },
-  DELIVERED: { label: "Livree", color: "bg-green-100 text-green-800" },
-  CANCELLED: { label: "Annulee", color: "bg-red-100 text-red-800" },
+  PAID: { label: "Payée", color: "bg-green-100 text-green-800" },
+  PROCESSING: { label: "En préparation", color: "bg-blue-100 text-blue-800" },
+  SHIPPED: { label: "Expédiée", color: "bg-purple-100 text-purple-800" },
+  DELIVERED: { label: "Livrée", color: "bg-green-100 text-green-800" },
+  CANCELLED: { label: "Annulée", color: "bg-red-100 text-red-800" },
 };
 
 interface OrderPageProps {
@@ -89,7 +89,7 @@ export default async function OrderPage({ params }: OrderPageProps) {
               </svg>
             </div>
             <h1 className="mb-2 text-3xl font-bold text-text">
-              Commande confirmee !
+              Commande confirmée !
             </h1>
             <p className="text-text-light">
               Merci pour votre achat. Vous recevrez un email de confirmation.
@@ -118,8 +118,8 @@ export default async function OrderPage({ params }: OrderPageProps) {
               Paiement en cours de traitement...
             </h1>
             <p className="text-text-light">
-              Votre paiement est en cours de verification. Cette page se mettra
-              a jour automatiquement.
+              Votre paiement est en cours de vérification. Cette page se mettra
+              à jour automatiquement.
             </p>
           </>
         )}
@@ -127,15 +127,15 @@ export default async function OrderPage({ params }: OrderPageProps) {
 
       {/* Details de la commande */}
       <div className="space-y-6">
-        {/* Informations generales */}
+        {/* Informations générales */}
         <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
           <h2 className="mb-4 text-lg font-bold text-text">
-            Details de la commande
+            Détails de la commande
           </h2>
 
           <div className="grid gap-4 sm:grid-cols-2">
             <div>
-              <span className="text-sm text-text-light">Numero de commande</span>
+              <span className="text-sm text-text-light">Numéro de commande</span>
               <p className="font-mono text-sm font-medium text-text">
                 {order.id.slice(0, 8).toUpperCase()}
               </p>
@@ -274,7 +274,7 @@ export default async function OrderPage({ params }: OrderPageProps) {
           href="/boutique"
           className="inline-block rounded-xl bg-accent px-8 py-3.5 text-base font-semibold text-white shadow-lg shadow-accent/25 transition-all duration-200 hover:bg-accent-dark hover:shadow-xl hover:shadow-accent/30 active:scale-[0.98]"
         >
-          Retour a la boutique
+          Retour à la boutique
         </Link>
       </div>
     </div>

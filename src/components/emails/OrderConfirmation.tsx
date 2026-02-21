@@ -27,10 +27,10 @@ export function OrderConfirmation({ order }: OrderConfirmationProps) {
           Bonjour <strong>{order.name}</strong>,
         </p>
         <p style={{ fontSize: "14px", color: "#555555", marginBottom: "24px" }}>
-          Merci pour votre commande chez 3D World ! Voici le recapitulatif de votre achat.
+          Merci pour votre commande chez 3D World ! Voici le récapitulatif de votre achat.
         </p>
 
-        {/* Numero de commande */}
+        {/* Numéro de commande */}
         <div style={{ backgroundColor: "#f5f5f5", padding: "12px 16px", borderRadius: "6px", marginBottom: "24px" }}>
           <p style={{ margin: 0, fontSize: "14px", color: "#666666" }}>
             Commande <strong style={{ color: "#1a1a2e" }}>#{shortId}</strong>
@@ -103,7 +103,7 @@ export function OrderConfirmation({ order }: OrderConfirmationProps) {
         {/* Message de remerciement */}
         <p style={{ fontSize: "14px", color: "#555555", marginTop: "24px", textAlign: "center" }}>
           Merci pour votre commande chez <strong>3D World</strong> !<br />
-          Nous vous tiendrons informe de l&apos;avancement de votre commande.
+          Nous vous tiendrons informé de l&apos;avancement de votre commande.
         </p>
       </div>
 
