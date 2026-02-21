@@ -1,7 +1,9 @@
+// Layout racine — structure HTML minimale (html, body, fonts)
+// Le Header/Footer du site vitrine est dans (site)/layout.tsx
+// Le layout admin est dans admin/layout.tsx
+
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import Header from "@/components/layout/Header";
-import Footer from "@/components/layout/Footer";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -94,9 +96,7 @@ export default function RootLayout({
             }),
           }}
         />
-        <Header />
-        <main className="min-h-screen">{children}</main>
-        <Footer />
+        {children}
       </body>
     </html>
   );
