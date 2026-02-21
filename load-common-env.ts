@@ -38,8 +38,14 @@ try {
       }
     }
   }
-} catch {
+} catch (error: unknown) {
   // Fichier commun introuvable (Vercel, etc.) — on continue avec les .env injectées
+  // Seule l'absence du fichier est silencieuse, les autres erreurs remontent
+  const isFileNotFound =
+    error instanceof Error && "code" in error && (error as NodeJS.ErrnoException).code === "ENOENT";
+  if (!isFileNotFound) {
+    console.warn("[load-common-env] Erreur de lecture du fichier commun :", error);
+  }
 }
 
 // Sur Vercel, les NEXT_PUBLIC_* sont dans process.env directement
