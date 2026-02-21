@@ -20,9 +20,9 @@ interface ShopFilterProps {
 
 /** Options de tri disponibles */
 const SORT_OPTIONS = [
-  { value: "recent", label: "Plus r\u00e9cents" },
+  { value: "recent", label: "Plus récents" },
   { value: "price-asc", label: "Prix croissant" },
-  { value: "price-desc", label: "Prix d\u00e9croissant" },
+  { value: "price-desc", label: "Prix décroissant" },
 ] as const;
 
 /**

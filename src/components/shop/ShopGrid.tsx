@@ -37,10 +37,10 @@ export default function ShopGrid({ products }: ShopGridProps) {
             <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" />
           </svg>
           <p className="text-lg font-medium text-text-light">
-            Aucun produit dans cette cat\u00e9gorie pour le moment.
+            Aucun produit dans cette catégorie pour le moment.
           </p>
           <p className="mt-1 text-sm text-text-light">
-            Essayez une autre cat\u00e9gorie ou revenez plus tard.
+            Essayez une autre catégorie ou revenez plus tard.
           </p>
         </div>
       </div>

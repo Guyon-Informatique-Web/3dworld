@@ -142,7 +142,7 @@ function ImageLightbox({
           <button
             onClick={goToPrev}
             className="absolute left-2 top-1/2 flex h-10 w-10 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full bg-white/20 text-white transition-colors hover:bg-white/40"
-            aria-label="Image pr\u00e9c\u00e9dente"
+            aria-label="Image précédente"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"

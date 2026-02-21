@@ -13,13 +13,13 @@ import type { ProductCardData } from "@/components/shop/ProductCard";
 export const metadata: Metadata = {
   title: "Boutique",
   description:
-    "D\u00e9couvrez notre catalogue d'objets imprim\u00e9s en 3D : figurines, d\u00e9co, accessoires, prototypes et cr\u00e9ations sur mesure. Livraison en France.",
+    "Découvrez notre catalogue d'objets imprimés en 3D : figurines, déco, accessoires, prototypes et créations sur mesure. Livraison en France.",
 };
 
-/** Types de tri autoris\u00e9s */
+/** Types de tri autorisés */
 type SortOption = "recent" | "price-asc" | "price-desc";
 
-/** V\u00e9rifie qu'une valeur est un tri valide */
+/** Vérifie qu'une valeur est un tri valide */
 function isValidSort(value: string | undefined): value is SortOption {
   return value === "recent" || value === "price-asc" || value === "price-desc";
 }
@@ -106,7 +106,7 @@ export default async function BoutiquePage({ searchParams }: BoutiquePageProps) 
     <section className="pt-28 pb-12">
       <SectionTitle
         title="Boutique"
-        subtitle="D\u00e9couvrez nos cr\u00e9ations imprim\u00e9es en 3D, pr\u00eates \u00e0 commander."
+        subtitle="Découvrez nos créations imprimées en 3D, prêtes à commander."
       />
 
       <div className="mx-auto max-w-6xl">
