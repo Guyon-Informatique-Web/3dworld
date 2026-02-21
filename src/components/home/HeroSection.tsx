@@ -62,10 +62,10 @@ export default function HeroSection() {
           className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row"
         >
           <Link
-            href="/realisations"
+            href="/boutique"
             className="rounded-full bg-primary px-8 py-3.5 text-base font-semibold text-white shadow-lg transition-all hover:bg-primary-dark hover:shadow-xl"
           >
-            Voir nos réalisations
+            Découvrir la boutique
           </Link>
           <Link
             href="/contact"

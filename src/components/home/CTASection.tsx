@@ -22,13 +22,19 @@ export default function CTASection() {
             Devis gratuit et sans engagement
           </p>
 
-          {/* Bouton CTA */}
-          <div className="mt-10">
+          {/* Boutons CTA */}
+          <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
             <Link
               href="/contact"
               className="inline-block rounded-full bg-accent px-10 py-4 text-lg font-semibold text-white shadow-lg transition-all hover:bg-accent-dark hover:shadow-xl"
             >
               Demander un devis gratuit
+            </Link>
+            <Link
+              href="/boutique"
+              className="inline-block rounded-full border-2 border-white/80 px-10 py-4 text-lg font-semibold text-white shadow-lg transition-all hover:bg-white/10 hover:shadow-xl"
+            >
+              Voir notre boutique
             </Link>
           </div>
         </AnimatedSection>

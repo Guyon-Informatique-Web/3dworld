@@ -9,11 +9,12 @@ import CartBadge from "@/components/layout/CartBadge";
 
 /** Liens de navigation principaux */
 const NAV_LINKS = [
-  { label: "Accueil", href: "/" },
-  { label: "Services", href: "/services" },
-  { label: "Réalisations", href: "/realisations" },
-  { label: "À propos", href: "/a-propos" },
-  { label: "Contact", href: "/contact" },
+  { label: "Accueil", href: "/", highlight: false },
+  { label: "Services", href: "/services", highlight: false },
+  { label: "Boutique", href: "/boutique", highlight: true },
+  { label: "Réalisations", href: "/realisations", highlight: false },
+  { label: "À propos", href: "/a-propos", highlight: false },
+  { label: "Contact", href: "/contact", highlight: false },
 ] as const;
 
 /**
@@ -69,10 +70,12 @@ export default function Header() {
               <li key={link.href}>
                 <Link
                   href={link.href}
-                  className={`rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
+                  className={`rounded-lg px-3 py-2 text-sm transition-colors ${
                     pathname === link.href
-                      ? "text-primary"
-                      : "text-text-light hover:text-primary"
+                      ? "font-bold text-primary"
+                      : link.highlight
+                        ? "font-semibold text-accent hover:text-accent-dark"
+                        : "font-medium text-text-light hover:text-primary"
                   }`}
                 >
                   {link.label}

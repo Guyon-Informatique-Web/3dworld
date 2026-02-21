@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from "framer-motion";
 interface NavLink {
   readonly label: string;
   readonly href: string;
+  readonly highlight?: boolean;
 }
 
 interface MobileMenuProps {
@@ -86,16 +87,53 @@ export default function MobileMenu({
                     <Link
                       href={link.href}
                       onClick={onClose}
-                      className={`block rounded-lg px-4 py-3 text-base font-medium transition-colors ${
+                      className={`block rounded-lg px-4 py-3 text-base transition-colors ${
                         currentPath === link.href
-                          ? "bg-bg-alt text-primary"
-                          : "text-text hover:bg-bg-alt hover:text-primary"
+                          ? "bg-bg-alt font-bold text-primary"
+                          : link.highlight
+                            ? "font-semibold text-accent hover:bg-bg-alt hover:text-accent-dark"
+                            : "font-medium text-text hover:bg-bg-alt hover:text-primary"
                       }`}
                     >
                       {link.label}
                     </Link>
                   </motion.li>
                 ))}
+
+                {/* Lien vers le panier */}
+                <motion.li
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.1 + navLinks.length * 0.05 }}
+                >
+                  <Link
+                    href="/panier"
+                    onClick={onClose}
+                    className={`mt-2 flex items-center gap-2 rounded-lg border-t border-gray-100 px-4 py-3 text-base font-medium transition-colors ${
+                      currentPath === "/panier"
+                        ? "bg-bg-alt font-bold text-primary"
+                        : "text-text hover:bg-bg-alt hover:text-primary"
+                    }`}
+                  >
+                    {/* Icone panier */}
+                    <svg
+                      width="18"
+                      height="18"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      aria-hidden="true"
+                    >
+                      <circle cx="8" cy="21" r="1" />
+                      <circle cx="19" cy="21" r="1" />
+                      <path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12" />
+                    </svg>
+                    Mon panier
+                  </Link>
+                </motion.li>
               </ul>
             </nav>
 
