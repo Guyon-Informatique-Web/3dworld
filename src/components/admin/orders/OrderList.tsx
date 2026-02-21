@@ -1,0 +1,204 @@
+// Liste des commandes admin — table avec filtres par statut et lien vers le detail
+// Client component pour gerer l'interactivite des filtres
+
+"use client";
+
+import { useState } from "react";
+import Link from "next/link";
+import type { OrderStatus } from "@/generated/prisma/client";
+import OrderStatusBadge from "./OrderStatusBadge";
+
+/** Donnees d'une commande pour la liste */
+interface OrderForList {
+  id: string;
+  email: string;
+  name: string;
+  status: OrderStatus;
+  totalAmount: string;
+  shippingMethod: string;
+  createdAt: string;
+}
+
+interface OrderListProps {
+  /** Liste des commandes chargees cote serveur */
+  orders: OrderForList[];
+}
+
+/** Options de filtre par statut */
+const STATUS_FILTERS: { value: OrderStatus | "ALL"; label: string }[] = [
+  { value: "ALL", label: "Toutes" },
+  { value: "PENDING", label: "En attente" },
+  { value: "PAID", label: "Payees" },
+  { value: "PROCESSING", label: "En preparation" },
+  { value: "SHIPPED", label: "Expediees" },
+  { value: "DELIVERED", label: "Livrees" },
+  { value: "CANCELLED", label: "Annulees" },
+];
+
+/**
+ * Formate un montant en euros (format francais avec virgule decimale).
+ */
+function formatPrice(amount: string): string {
+  const value = parseFloat(amount);
+  return new Intl.NumberFormat("fr-FR", {
+    style: "currency",
+    currency: "EUR",
+  }).format(value);
+}
+
+/**
+ * Formate une date ISO en format francais lisible.
+ */
+function formatDate(dateStr: string): string {
+  const date = new Date(dateStr);
+  return new Intl.DateTimeFormat("fr-FR", {
+    dateStyle: "medium",
+    timeStyle: "short",
+  }).format(date);
+}
+
+export default function OrderList({ orders }: OrderListProps) {
+  // Filtre par statut actif
+  const [statusFilter, setStatusFilter] = useState<OrderStatus | "ALL">("ALL");
+
+  // Appliquer le filtre
+  const filteredOrders = orders.filter((order) => {
+    if (statusFilter === "ALL") return true;
+    return order.status === statusFilter;
+  });
+
+  return (
+    <div className="space-y-6">
+      {/* En-tete */}
+      <div className="flex items-center justify-between">
+        <h1 className="text-2xl font-bold text-text">Commandes</h1>
+
+        {/* Compteur total */}
+        <span className="text-sm text-text-light">
+          {orders.length} commande{orders.length !== 1 ? "s" : ""} au total
+        </span>
+      </div>
+
+      {/* Filtres par statut */}
+      <div className="flex flex-wrap items-center gap-2">
+        {STATUS_FILTERS.map((filter) => {
+          const isActive = statusFilter === filter.value;
+          // Compter les commandes par statut
+          const count =
+            filter.value === "ALL"
+              ? orders.length
+              : orders.filter((o) => o.status === filter.value).length;
+
+          return (
+            <button
+              key={filter.value}
+              onClick={() => setStatusFilter(filter.value)}
+              className={`rounded-lg px-3 py-1.5 text-sm font-medium transition-colors ${
+                isActive
+                  ? "bg-primary text-white"
+                  : "bg-white text-text-light border border-gray-200 hover:bg-bg-alt hover:text-text"
+              }`}
+            >
+              {filter.label}
+              <span
+                className={`ml-1.5 text-xs ${
+                  isActive ? "text-white/80" : "text-text-light"
+                }`}
+              >
+                ({count})
+              </span>
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Table des commandes */}
+      {filteredOrders.length === 0 ? (
+        <div className="rounded-xl border border-gray-200 bg-white p-12 text-center">
+          <p className="text-text-light">
+            {orders.length === 0
+              ? "Aucune commande pour le moment."
+              : "Aucune commande ne correspond au filtre selectionne."}
+          </p>
+        </div>
+      ) : (
+        <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr className="border-b border-gray-200 bg-gray-50">
+                  <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-text-light">
+                    Numero
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-text-light">
+                    Date
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-text-light">
+                    Client
+                  </th>
+                  <th className="px-6 py-3 text-right text-xs font-semibold uppercase tracking-wider text-text-light">
+                    Montant
+                  </th>
+                  <th className="px-6 py-3 text-center text-xs font-semibold uppercase tracking-wider text-text-light">
+                    Statut
+                  </th>
+                  <th className="px-6 py-3 text-right text-xs font-semibold uppercase tracking-wider text-text-light">
+                    Actions
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-100">
+                {filteredOrders.map((order) => (
+                  <tr
+                    key={order.id}
+                    className="hover:bg-gray-50 transition-colors"
+                  >
+                    {/* Numero (8 premiers caracteres de l'ID) */}
+                    <td className="px-6 py-4 font-mono text-sm font-medium text-text">
+                      {order.id.slice(0, 8).toUpperCase()}
+                    </td>
+
+                    {/* Date */}
+                    <td className="px-6 py-4 text-sm text-text-light">
+                      {formatDate(order.createdAt)}
+                    </td>
+
+                    {/* Client (nom + email) */}
+                    <td className="px-6 py-4">
+                      <div className="text-sm font-medium text-text">
+                        {order.name}
+                      </div>
+                      <div className="text-xs text-text-light">
+                        {order.email}
+                      </div>
+                    </td>
+
+                    {/* Montant */}
+                    <td className="px-6 py-4 text-right text-sm font-medium text-text">
+                      {formatPrice(order.totalAmount)}
+                    </td>
+
+                    {/* Statut */}
+                    <td className="px-6 py-4 text-center">
+                      <OrderStatusBadge status={order.status} />
+                    </td>
+
+                    {/* Actions */}
+                    <td className="px-6 py-4 text-right">
+                      <Link
+                        href={`/admin/commandes/${order.id}`}
+                        className="rounded-md px-3 py-1.5 text-xs font-medium text-primary hover:bg-bg-alt transition-colors"
+                      >
+                        Voir
+                      </Link>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
