@@ -30,8 +30,15 @@ yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 
-# env files (can opt-in for committing if needed)
+# env files — .env contient uniquement les defaults non-secrets
 .env*
+!.env
+
+# prisma (client généré)
+/src/generated/
+
+# fichiers temporaires (tests, screenshots)
+/tmp/
 
 # vercel
 .vercel
