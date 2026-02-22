@@ -14,6 +14,7 @@ interface ProductData {
   name: string;
   description: string;
   price: string;
+  stock: number;
   categoryId: string;
   images: string[];
   hasVariants: boolean;
@@ -56,6 +57,7 @@ export default function ProductForm({ product, categories }: ProductFormProps) {
     formData.set("images", JSON.stringify(images));
     // Ajouter le flag variantes
     formData.set("hasVariants", hasVariants ? "true" : "false");
+    // Le stock est deja dans le FormData du formulaire
 
     if (isEditing) {
       return updateProduct(product.id, formData);
@@ -118,7 +120,7 @@ export default function ProductForm({ product, categories }: ProductFormProps) {
             />
           </div>
 
-          {/* Ligne prix + categorie */}
+          {/* Ligne prix + stock */}
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             {/* Champ prix (obligatoire) */}
             <div>
@@ -138,26 +140,43 @@ export default function ProductForm({ product, categories }: ProductFormProps) {
               />
             </div>
 
-            {/* Selection de categorie (obligatoire) */}
+            {/* Champ stock (obligatoire) */}
             <div>
-              <label htmlFor="product-category" className="mb-1 block text-sm font-medium text-text">
-                Catégorie <span className="text-red-500">*</span>
+              <label htmlFor="product-stock" className="mb-1 block text-sm font-medium text-text">
+                Stock <span className="text-red-500">*</span>
               </label>
-              <select
-                id="product-category"
-                name="categoryId"
+              <input
+                id="product-stock"
+                name="stock"
+                type="number"
                 required
-                defaultValue={product?.categoryId ?? ""}
-                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-text focus:border-primary focus:ring-1 focus:ring-primary focus:outline-none"
-              >
-                <option value="">Choisir une catégorie</option>
-                {categories.map((cat) => (
-                  <option key={cat.id} value={cat.id}>
-                    {cat.name}
-                  </option>
-                ))}
-              </select>
+                min="0"
+                defaultValue={product?.stock ?? 0}
+                placeholder="0"
+                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-text placeholder:text-text-light focus:border-primary focus:ring-1 focus:ring-primary focus:outline-none"
+              />
             </div>
+          </div>
+
+          {/* Selection de categorie (obligatoire) */}
+          <div>
+            <label htmlFor="product-category" className="mb-1 block text-sm font-medium text-text">
+              Catégorie <span className="text-red-500">*</span>
+            </label>
+            <select
+              id="product-category"
+              name="categoryId"
+              required
+              defaultValue={product?.categoryId ?? ""}
+              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-text focus:border-primary focus:ring-1 focus:ring-primary focus:outline-none"
+            >
+              <option value="">Choisir une catégorie</option>
+              {categories.map((cat) => (
+                <option key={cat.id} value={cat.id}>
+                  {cat.name}
+                </option>
+              ))}
+            </select>
           </div>
 
           {/* Upload d'images */}

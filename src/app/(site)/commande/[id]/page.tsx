@@ -175,6 +175,28 @@ export default async function OrderPage({ params }: OrderPageProps) {
               </p>
             </div>
           )}
+
+          {/* Suivi de colis (si disponible) */}
+          {order.trackingNumber && (
+            <div className="mt-4 border-t border-gray-100 pt-4">
+              <span className="text-sm text-text-light">
+                Numéro de suivi
+              </span>
+              <p className="mt-1 font-mono text-sm font-medium text-text">
+                {order.trackingNumber}
+              </p>
+              {order.trackingUrl && (
+                <a
+                  href={order.trackingUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mt-2 inline-block rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-primary-dark"
+                >
+                  Suivre mon colis
+                </a>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Articles */}

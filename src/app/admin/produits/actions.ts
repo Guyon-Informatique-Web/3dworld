@@ -42,6 +42,7 @@ export async function createProduct(formData: FormData): Promise<ActionResult> {
   const name = formData.get("name");
   const description = formData.get("description");
   const price = formData.get("price");
+  const stock = formData.get("stock");
   const categoryId = formData.get("categoryId");
   const hasVariants = formData.get("hasVariants") === "true";
   // Les images sont envoyées sous forme de JSON (tableau d'URLs)
@@ -66,6 +67,9 @@ export async function createProduct(formData: FormData): Promise<ActionResult> {
   if (isNaN(priceValue) || priceValue < 0) {
     return { success: false, error: "Le prix doit être un nombre positif." };
   }
+
+  // Validation du stock (optionnel, défaut 0)
+  const stockValue = stock && typeof stock === "string" ? parseInt(stock, 10) : 0;
 
   // Validation de la catégorie (obligatoire)
   if (!categoryId || typeof categoryId !== "string" || categoryId.trim().length === 0) {
@@ -122,6 +126,7 @@ export async function createProduct(formData: FormData): Promise<ActionResult> {
       slug,
       description: description.trim(),
       price: priceValue,
+      stock: stockValue,
       images,
       hasVariants,
       categoryId,
@@ -148,6 +153,7 @@ export async function updateProduct(id: string, formData: FormData): Promise<Act
   const name = formData.get("name");
   const description = formData.get("description");
   const price = formData.get("price");
+  const stock = formData.get("stock");
   const categoryId = formData.get("categoryId");
   const hasVariants = formData.get("hasVariants") === "true";
   const imagesJson = formData.get("images");
@@ -170,6 +176,16 @@ export async function updateProduct(id: string, formData: FormData): Promise<Act
   const priceValue = parseFloat(price);
   if (isNaN(priceValue) || priceValue < 0) {
     return { success: false, error: "Le prix doit être un nombre positif." };
+  }
+
+  // Validation du stock (obligatoire, >= 0)
+  if (!stock || typeof stock !== "string") {
+    return { success: false, error: "Le stock du produit est obligatoire." };
+  }
+
+  const stockValue = parseInt(stock, 10);
+  if (isNaN(stockValue) || stockValue < 0) {
+    return { success: false, error: "Le stock doit être un nombre entier positif." };
   }
 
   // Validation de la catégorie (obligatoire)
@@ -239,6 +255,7 @@ export async function updateProduct(id: string, formData: FormData): Promise<Act
       slug,
       description: description.trim(),
       price: priceValue,
+      stock: stockValue,
       images,
       hasVariants,
       categoryId,
@@ -375,6 +392,16 @@ export async function createVariant(
     }
   }
 
+  // Validation du stock (optionnel, >= 0 si présent)
+  const stockStr = formData.get("stock");
+  let stock = 0;
+  if (stockStr && typeof stockStr === "string" && stockStr.trim().length > 0) {
+    stock = parseInt(stockStr, 10);
+    if (isNaN(stock) || stock < 0) {
+      return { success: false, error: "Le stock doit être un nombre entier positif." };
+    }
+  }
+
   // Parser les attributs JSON (optionnel)
   const attributesJson = formData.get("attributes");
   let attributes: Record<string, string> = {};
@@ -392,6 +419,7 @@ export async function createVariant(
       productId,
       name: name.trim(),
       priceOverride,
+      stock,
       attributes,
     },
   });
@@ -442,6 +470,16 @@ export async function updateVariant(
     }
   }
 
+  // Validation du stock (optionnel, >= 0 si présent)
+  const stockStr = formData.get("stock");
+  let stock = 0;
+  if (stockStr && typeof stockStr === "string" && stockStr.trim().length > 0) {
+    stock = parseInt(stockStr, 10);
+    if (isNaN(stock) || stock < 0) {
+      return { success: false, error: "Le stock doit être un nombre entier positif." };
+    }
+  }
+
   // Parser les attributs JSON (optionnel)
   const attributesJson = formData.get("attributes");
   let attributes: Record<string, string> = {};
@@ -459,6 +497,7 @@ export async function updateVariant(
     data: {
       name: name.trim(),
       priceOverride,
+      stock,
       attributes,
     },
   });

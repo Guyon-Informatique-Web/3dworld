@@ -7,7 +7,7 @@
 import { revalidatePath } from "next/cache";
 import { requireAdmin } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { sendOrderStatusUpdate } from "@/lib/email";
+import { sendOrderStatusUpdate, sendShippingNotification } from "@/lib/email";
 import type { OrderStatus } from "@/generated/prisma/client";
 
 /** Type de retour standard pour les actions */
@@ -99,10 +99,21 @@ export async function updateOrderStatus(
     });
 
     if (fullOrder) {
-      // Envoi asynchrone — ne bloque pas la reponse de l'action
-      sendOrderStatusUpdate(fullOrder, newStatus).catch((error) => {
-        console.error("Erreur envoi email mise a jour statut:", error);
-      });
+      // Si passage a SHIPPED avec numéro de suivi, envoyer notification d'expedition
+      if (newStatus === "SHIPPED" && fullOrder.trackingNumber) {
+        sendShippingNotification(
+          fullOrder,
+          fullOrder.trackingNumber,
+          fullOrder.trackingUrl ?? undefined
+        ).catch((error) => {
+          console.error("Erreur envoi email notification expedition:", error);
+        });
+      } else {
+        // Sinon, envoi asynchrone mise a jour statut standard
+        sendOrderStatusUpdate(fullOrder, newStatus).catch((error) => {
+          console.error("Erreur envoi email mise a jour statut:", error);
+        });
+      }
     }
   }
 
@@ -111,6 +122,77 @@ export async function updateOrderStatus(
   revalidatePath(`/admin/commandes/${id}`);
   // Revalider aussi le dashboard (stats)
   revalidatePath("/admin");
+
+  return { success: true };
+}
+
+/**
+ * Enregistre le numéro de suivi d'une commande.
+ * Envoie un email de notification au client avec le numéro de suivi.
+ */
+export async function updateTracking(
+  id: string,
+  trackingNumber: string,
+  trackingUrl?: string
+): Promise<ActionResult> {
+  await requireAdmin();
+
+  // Validation des parametres
+  if (!id || id.trim().length === 0) {
+    return { success: false, error: "Identifiant de commande manquant." };
+  }
+
+  if (!trackingNumber || trackingNumber.trim().length === 0) {
+    return { success: false, error: "Numéro de suivi manquant." };
+  }
+
+  // Recuperer la commande actuelle
+  const order = await prisma.order.findUnique({
+    where: { id },
+    select: { id: true, status: true },
+  });
+
+  if (!order) {
+    return { success: false, error: "Commande introuvable." };
+  }
+
+  // Mettre a jour le numéro et URL de suivi
+  await prisma.order.update({
+    where: { id },
+    data: {
+      trackingNumber: trackingNumber.trim(),
+      trackingUrl: trackingUrl ? trackingUrl.trim() : null,
+    },
+  });
+
+  // Envoyer l'email si le statut est SHIPPED ou PROCESSING
+  if (["SHIPPED", "PROCESSING"].includes(order.status)) {
+    const fullOrder = await prisma.order.findUnique({
+      where: { id },
+      include: {
+        items: {
+          include: {
+            product: { select: { name: true } },
+            variant: { select: { name: true } },
+          },
+        },
+      },
+    });
+
+    if (fullOrder) {
+      sendShippingNotification(
+        fullOrder,
+        trackingNumber.trim(),
+        trackingUrl ? trackingUrl.trim() : undefined
+      ).catch((error) => {
+        console.error("Erreur envoi email notification expedition:", error);
+      });
+    }
+  }
+
+  // Revalider les pages
+  revalidatePath("/admin/commandes");
+  revalidatePath(`/admin/commandes/${id}`);
 
   return { success: true };
 }

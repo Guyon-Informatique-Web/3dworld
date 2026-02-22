@@ -3,6 +3,10 @@
 
 import { prisma } from "@/lib/prisma";
 import StatCard from "@/components/admin/StatCard";
+import RevenueChart from "@/components/admin/charts/RevenueChart";
+import TopProducts from "@/components/admin/charts/TopProducts";
+import OrdersByStatus from "@/components/admin/charts/OrdersByStatus";
+import RecentOrders from "@/components/admin/charts/RecentOrders";
 
 export const metadata = {
   title: "Tableau de bord",
@@ -102,50 +106,208 @@ export default async function AdminDashboardPage() {
   const now = new Date();
   const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
   const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+  const sixMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 6, 1);
 
   // Charger toutes les statistiques en parallèle
-  const [ordersToday, monthlyRevenue, pendingOrders, activeProducts] =
-    await Promise.all([
-      // 1. Commandes du jour
-      prisma.order.count({
-        where: {
-          createdAt: { gte: startOfDay },
-        },
-      }),
+  const [
+    ordersToday,
+    monthlyRevenue,
+    pendingOrders,
+    activeProducts,
+    ordersLast6Months,
+    orderItems,
+    ordersByStatus,
+    recentOrders,
+  ] = await Promise.all([
+    // 1. Commandes du jour
+    prisma.order.count({
+      where: {
+        createdAt: { gte: startOfDay },
+      },
+    }),
 
-      // 2. Chiffre d'affaires du mois (commandes payées/en cours/expédiées/livrées)
-      prisma.order.aggregate({
-        _sum: { totalAmount: true },
-        where: {
-          createdAt: { gte: startOfMonth },
-          status: {
-            in: ["PAID", "PROCESSING", "SHIPPED", "DELIVERED"],
+    // 2. Chiffre d'affaires du mois (commandes payées/en cours/expédiées/livrées)
+    prisma.order.aggregate({
+      _sum: { totalAmount: true },
+      where: {
+        createdAt: { gte: startOfMonth },
+        status: {
+          in: ["PAID", "PROCESSING", "SHIPPED", "DELIVERED"],
+        },
+      },
+    }),
+
+    // 3. Commandes en cours (payées ou en traitement)
+    prisma.order.count({
+      where: {
+        status: { in: ["PAID", "PROCESSING"] },
+      },
+    }),
+
+    // 4. Produits actifs
+    prisma.product.count({
+      where: { isActive: true },
+    }),
+
+    // 5. Commandes des 6 derniers mois pour graphique chiffre d'affaires
+    prisma.order.findMany({
+      where: {
+        createdAt: { gte: sixMonthsAgo },
+        status: { not: "CANCELLED" },
+      },
+      select: {
+        createdAt: true,
+        totalAmount: true,
+      },
+    }),
+
+    // 6. Articles de commande pour top 5 produits
+    prisma.orderItem.findMany({
+      where: {
+        order: {
+          createdAt: { gte: sixMonthsAgo },
+          status: { not: "CANCELLED" },
+        },
+      },
+      select: {
+        quantity: true,
+        product: {
+          select: {
+            name: true,
           },
         },
-      }),
+      },
+    }),
 
-      // 3. Commandes en cours (payées ou en traitement)
-      prisma.order.count({
-        where: {
-          status: { in: ["PAID", "PROCESSING"] },
-        },
-      }),
+    // 7. Commandes par statut
+    prisma.order.groupBy({
+      by: ["status"],
+      _count: true,
+    }),
 
-      // 4. Produits actifs
-      prisma.product.count({
-        where: { isActive: true },
-      }),
-    ]);
+    // 8. 5 commandes récentes
+    prisma.order.findMany({
+      take: 5,
+      orderBy: { createdAt: "desc" },
+      select: {
+        id: true,
+        name: true,
+        totalAmount: true,
+        status: true,
+        createdAt: true,
+      },
+    }),
+  ]);
 
   // Extraire le CA du mois (Decimal -> number)
   const revenue = monthlyRevenue._sum.totalAmount
     ? Number(monthlyRevenue._sum.totalAmount)
     : 0;
 
+  // Préparer données graphique chiffre d'affaires (6 derniers mois)
+  const monthNames = [
+    "Jan",
+    "Fév",
+    "Mar",
+    "Avr",
+    "Mai",
+    "Juin",
+    "Juil",
+    "Août",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Déc",
+  ];
+  const revenueByMonth: Record<string, number> = {};
+
+  for (let i = 5; i >= 0; i--) {
+    const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    const monthKey = `${date.getFullYear()}-${String(date.getMonth()).padStart(2, "0")}`;
+    revenueByMonth[monthKey] = 0;
+  }
+
+  ordersLast6Months.forEach((order) => {
+    const date = new Date(order.createdAt);
+    const monthKey = `${date.getFullYear()}-${String(date.getMonth()).padStart(2, "0")}`;
+    if (monthKey in revenueByMonth) {
+      revenueByMonth[monthKey] += Number(order.totalAmount);
+    }
+  });
+
+  const revenueChartData = Object.entries(revenueByMonth).map(
+    ([monthKey, amount]) => {
+      const [year, month] = monthKey.split("-");
+      return {
+        month: monthNames[parseInt(month)],
+        revenue: amount,
+      };
+    }
+  );
+
+  // Préparer données top 5 produits
+  const productSales: Record<string, number> = {};
+  orderItems.forEach((item) => {
+    const productName = item.product.name;
+    productSales[productName] = (productSales[productName] || 0) + item.quantity;
+  });
+
+  const topProductsData = Object.entries(productSales)
+    .map(([name, quantity]) => ({ name, quantity }))
+    .sort((a, b) => b.quantity - a.quantity)
+    .slice(0, 5);
+
+  // Préparer données commandes par statut
+  const statusLabels: Record<string, { label: string; color: string }> = {
+    PENDING: {
+      label: "En attente",
+      color: "bg-amber-500",
+    },
+    PAID: {
+      label: "Payée",
+      color: "bg-blue-500",
+    },
+    PROCESSING: {
+      label: "En préparation",
+      color: "bg-orange-500",
+    },
+    SHIPPED: {
+      label: "Expédiée",
+      color: "bg-indigo-500",
+    },
+    DELIVERED: {
+      label: "Livrée",
+      color: "bg-green-500",
+    },
+    CANCELLED: {
+      label: "Annulée",
+      color: "bg-red-500",
+    },
+  };
+
+  const ordersByStatusData = ordersByStatus.map((item) => ({
+    status: item.status,
+    count: item._count,
+    label: statusLabels[item.status]?.label || item.status,
+    color: statusLabels[item.status]?.color || "bg-gray-500",
+  }));
+
+  // Préparer données commandes récentes
+  const recentOrdersData = recentOrders.map((order) => ({
+    id: order.id,
+    name: order.name,
+    totalAmount: new Intl.NumberFormat("fr-FR", {
+      style: "currency",
+      currency: "EUR",
+    }).format(Number(order.totalAmount)),
+    status: order.status,
+    createdAt: order.createdAt.toISOString(),
+  }));
+
   return (
-    <div>
+    <div className="space-y-6">
       {/* Titre de la page */}
-      <h1 className="mb-6 text-2xl font-bold text-text">Tableau de bord</h1>
+      <h1 className="text-2xl font-bold text-text">Tableau de bord</h1>
 
       {/* Grille de statistiques */}
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-4">
@@ -169,6 +331,17 @@ export default async function AdminDashboardPage() {
           value={activeProducts}
           icon={<ActiveProductsIcon />}
         />
+      </div>
+
+      {/* Graphiques */}
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+        <RevenueChart data={revenueChartData} />
+        <TopProducts data={topProductsData} />
+      </div>
+
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+        <OrdersByStatus data={ordersByStatusData} />
+        <RecentOrders orders={recentOrdersData} />
       </div>
     </div>
   );

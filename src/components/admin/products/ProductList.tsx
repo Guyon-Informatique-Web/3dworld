@@ -14,6 +14,7 @@ interface ProductWithCategory {
   name: string;
   slug: string;
   price: string;
+  stock: number;
   images: string[];
   isActive: boolean;
   hasVariants: boolean;
@@ -192,6 +193,9 @@ export default function ProductList({ products, categories }: ProductListProps) 
                     Prix
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-text-light">
+                    Stock
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-text-light">
                     Catégorie
                   </th>
                   <th className="px-6 py-3 text-center text-xs font-semibold uppercase tracking-wider text-text-light">
@@ -249,6 +253,11 @@ export default function ProductList({ products, categories }: ProductListProps) 
                     {/* Prix */}
                     <td className="px-6 py-4 text-sm font-medium text-text">
                       {formatPrice(product.price)}
+                    </td>
+
+                    {/* Stock */}
+                    <td className="px-6 py-4 text-sm font-medium text-text">
+                      {product.stock}
                     </td>
 
                     {/* Catégorie */}

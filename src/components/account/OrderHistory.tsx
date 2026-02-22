@@ -11,6 +11,7 @@ interface OrderSummary {
   status: OrderStatus;
   /** Decimal Prisma — converti en number via Number() */
   totalAmount: { toString(): string };
+  trackingNumber: string | null;
   createdAt: Date;
   _count: {
     items: number;
@@ -117,6 +118,22 @@ export default function OrderHistory({ orders }: OrderHistoryProps) {
               {/* Montant et statut */}
               <div className="flex items-center gap-3">
                 <OrderStatusBadge status={order.status} />
+                {order.trackingNumber && ["SHIPPED", "DELIVERED"].includes(order.status) && (
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className="text-blue-500"
+                    aria-label="Suivi disponible"
+                  >
+                    <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
+                  </svg>
+                )}
                 <span className="text-sm font-bold text-text">
                   {formatPrice(Number(order.totalAmount))}
                 </span>

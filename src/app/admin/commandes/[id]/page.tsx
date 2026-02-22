@@ -56,6 +56,8 @@ export default async function AdminOrderDetailPage({ params }: OrderDetailPagePr
     shippingMethod: order.shippingMethod,
     shippingCost: order.shippingCost.toString(),
     shippingAddress: order.shippingAddress,
+    trackingNumber: order.trackingNumber,
+    trackingUrl: order.trackingUrl,
     createdAt: order.createdAt.toISOString(),
     updatedAt: order.updatedAt.toISOString(),
     items: order.items.map((item) => ({

@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import Logo from "@/components/ui/Logo";
 import MobileMenu from "@/components/layout/MobileMenu";
 import CartBadge from "@/components/layout/CartBadge";
+import AccountButton from "@/components/layout/AccountButton";
 
 /** Liens de navigation principaux */
 const NAV_LINKS = [
@@ -13,6 +14,7 @@ const NAV_LINKS = [
   { label: "Services", href: "/services", highlight: false },
   { label: "Boutique", href: "/boutique", highlight: true },
   { label: "Réalisations", href: "/realisations", highlight: false },
+  { label: "Blog", href: "/blog", highlight: false },
   { label: "À propos", href: "/a-propos", highlight: false },
   { label: "Contact", href: "/contact", highlight: false },
 ] as const;
@@ -86,6 +88,29 @@ export default function Header() {
 
           {/* Panier + CTA desktop + Bouton hamburger mobile */}
           <div className="flex items-center gap-3">
+            {/* Bouton compte utilisateur */}
+            <AccountButton />
+
+            {/* Lien favoris */}
+            <Link
+              href="/favoris"
+              className="inline-flex items-center justify-center rounded-lg p-2 text-text-light transition-colors hover:text-primary"
+              aria-label="Mes favoris"
+            >
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+              </svg>
+            </Link>
+
             {/* Badge panier — visible sur tous les écrans */}
             <CartBadge />
 

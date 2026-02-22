@@ -67,6 +67,15 @@ export default function OrderList({ orders }: OrderListProps) {
     return order.status === statusFilter;
   });
 
+  // Gerer l'export CSV
+  const handleExportCSV = () => {
+    const url = new URL("/api/admin/orders/export", window.location.origin);
+    if (statusFilter !== "ALL") {
+      url.searchParams.set("status", statusFilter);
+    }
+    window.open(url.toString(), "_blank");
+  };
+
   return (
     <div className="space-y-6">
       {/* En-tête */}
@@ -79,37 +88,62 @@ export default function OrderList({ orders }: OrderListProps) {
         </span>
       </div>
 
-      {/* Filtres par statut */}
-      <div className="flex flex-wrap items-center gap-2">
-        {STATUS_FILTERS.map((filter) => {
-          const isActive = statusFilter === filter.value;
-          // Compter les commandes par statut
-          const count =
-            filter.value === "ALL"
-              ? orders.length
-              : orders.filter((o) => o.status === filter.value).length;
+      {/* Filtres par statut et bouton export */}
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        <div className="flex flex-wrap items-center gap-2">
+          {STATUS_FILTERS.map((filter) => {
+            const isActive = statusFilter === filter.value;
+            // Compter les commandes par statut
+            const count =
+              filter.value === "ALL"
+                ? orders.length
+                : orders.filter((o) => o.status === filter.value).length;
 
-          return (
-            <button
-              key={filter.value}
-              onClick={() => setStatusFilter(filter.value)}
-              className={`rounded-lg px-3 py-1.5 text-sm font-medium transition-colors ${
-                isActive
-                  ? "bg-primary text-white"
-                  : "bg-white text-text-light border border-gray-200 hover:bg-bg-alt hover:text-text"
-              }`}
-            >
-              {filter.label}
-              <span
-                className={`ml-1.5 text-xs ${
-                  isActive ? "text-white/80" : "text-text-light"
+            return (
+              <button
+                key={filter.value}
+                onClick={() => setStatusFilter(filter.value)}
+                className={`rounded-lg px-3 py-1.5 text-sm font-medium transition-colors ${
+                  isActive
+                    ? "bg-primary text-white"
+                    : "bg-white text-text-light border border-gray-200 hover:bg-bg-alt hover:text-text"
                 }`}
               >
-                ({count})
-              </span>
-            </button>
-          );
-        })}
+                {filter.label}
+                <span
+                  className={`ml-1.5 text-xs ${
+                    isActive ? "text-white/80" : "text-text-light"
+                  }`}
+                >
+                  ({count})
+                </span>
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Bouton export CSV */}
+        <button
+          onClick={handleExportCSV}
+          className="flex items-center gap-2 rounded-lg border border-gray-200 px-4 py-2 text-sm font-medium text-text transition-colors hover:border-primary hover:text-primary"
+        >
+          {/* Icone telechargement */}
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth={2}
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className="h-4 w-4"
+          >
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+            <polyline points="7 10 12 15 17 10" />
+            <line x1="12" y1="15" x2="12" y2="3" />
+          </svg>
+          Exporter CSV
+        </button>
       </div>
 
       {/* Table des commandes */}

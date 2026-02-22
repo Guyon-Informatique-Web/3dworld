@@ -8,6 +8,7 @@ import { prisma } from "@/lib/prisma";
 import SectionTitle from "@/components/ui/SectionTitle";
 import ShopFilter from "@/components/shop/ShopFilter";
 import ShopGrid from "@/components/shop/ShopGrid";
+import Pagination from "@/components/shop/Pagination";
 import type { ProductCardData } from "@/components/shop/ProductCard";
 
 export const metadata: Metadata = {
@@ -15,6 +16,9 @@ export const metadata: Metadata = {
   description:
     "Découvrez notre catalogue d'objets imprimés en 3D : figurines, déco, accessoires, prototypes et créations sur mesure. Livraison en France.",
 };
+
+/** Nombre de produits par page */
+const PRODUCTS_PER_PAGE = 12;
 
 /** Types de tri autorisés */
 type SortOption = "recent" | "price-asc" | "price-desc";
@@ -28,6 +32,8 @@ interface BoutiquePageProps {
   searchParams: Promise<{
     categorie?: string;
     tri?: string;
+    q?: string;
+    page?: string;
   }>;
 }
 
@@ -35,6 +41,9 @@ export default async function BoutiquePage({ searchParams }: BoutiquePageProps) 
   const params = await searchParams;
   const categorySlug = params.categorie ?? null;
   const sort: SortOption = isValidSort(params.tri) ? params.tri : "recent";
+  const searchQuery = params.q ?? null;
+  const pageParam = params.page ? parseInt(params.page, 10) : 1;
+  const currentPage = Math.max(1, pageParam);
 
   // Charger les catégories actives pour le filtre
   const categories = await prisma.category.findMany({
@@ -47,6 +56,10 @@ export default async function BoutiquePage({ searchParams }: BoutiquePageProps) 
   const whereClause: {
     isActive: boolean;
     category?: { slug: string };
+    OR?: Array<{
+      name?: { contains: string; mode: "insensitive" };
+      description?: { contains: string; mode: "insensitive" };
+    }>;
   } = { isActive: true };
 
   // Filtrer par catégorie si un slug est fourni et valide
@@ -55,6 +68,18 @@ export default async function BoutiquePage({ searchParams }: BoutiquePageProps) 
     if (categoryExists) {
       whereClause.category = { slug: categorySlug };
     }
+  }
+
+  // Filtrer par recherche si une requête est fournie
+  if (searchQuery && searchQuery.trim()) {
+    whereClause.OR = [
+      {
+        name: { contains: searchQuery.trim(), mode: "insensitive" },
+      },
+      {
+        description: { contains: searchQuery.trim(), mode: "insensitive" },
+      },
+    ];
   }
 
   // Déterminer l'ordre de tri Prisma
@@ -72,35 +97,57 @@ export default async function BoutiquePage({ searchParams }: BoutiquePageProps) 
       break;
   }
 
-  // Charger les produits avec categorie et variantes actives
+  // Compter le nombre total de produits pour la pagination
+  const totalProducts = await prisma.product.count({ where: whereClause });
+  const totalPages = Math.ceil(totalProducts / PRODUCTS_PER_PAGE);
+
+  // Charger les produits avec categorie, variantes actives et statistiques d'avis
   const rawProducts = await prisma.product.findMany({
     where: whereClause,
     orderBy,
+    skip: (currentPage - 1) * PRODUCTS_PER_PAGE,
+    take: PRODUCTS_PER_PAGE,
     include: {
       category: {
         select: { name: true, slug: true },
       },
       variants: {
         where: { isActive: true },
-        select: { priceOverride: true, isActive: true },
+        select: { priceOverride: true, stock: true, isActive: true },
+      },
+      reviews: {
+        where: { isApproved: true },
+        select: { rating: true },
       },
     },
   });
 
   // Sérialiser les Decimal Prisma en number pour les composants client
-  const products: ProductCardData[] = rawProducts.map((p) => ({
-    id: p.id,
-    name: p.name,
-    slug: p.slug,
-    price: Number(p.price),
-    images: p.images,
-    hasVariants: p.hasVariants,
-    variants: p.variants.map((v) => ({
-      priceOverride: v.priceOverride !== null ? Number(v.priceOverride) : null,
-      isActive: v.isActive,
-    })),
-    category: p.category,
-  }));
+  const products: ProductCardData[] = rawProducts.map((p) => {
+    // Calculer la moyenne des notes et le nombre d'avis approuvés
+    const reviewCount = p.reviews.length;
+    const averageRating = reviewCount > 0
+      ? p.reviews.reduce((sum, r) => sum + r.rating, 0) / reviewCount
+      : 0;
+
+    return {
+      id: p.id,
+      name: p.name,
+      slug: p.slug,
+      price: Number(p.price),
+      stock: p.stock,
+      images: p.images,
+      hasVariants: p.hasVariants,
+      variants: p.variants.map((v) => ({
+        priceOverride: v.priceOverride !== null ? Number(v.priceOverride) : null,
+        stock: v.stock,
+        isActive: v.isActive,
+      })),
+      category: p.category,
+      averageRating,
+      reviewCount,
+    };
+  });
 
   return (
     <section className="pt-28 pb-12">
@@ -114,9 +161,14 @@ export default async function BoutiquePage({ searchParams }: BoutiquePageProps) 
           categories={categories}
           activeCategory={categorySlug}
           activeSort={sort}
+          searchQuery={searchQuery}
         />
 
-        <ShopGrid products={products} />
+        <ShopGrid products={products} searchQuery={searchQuery} />
+
+        {totalPages > 1 && (
+          <Pagination currentPage={currentPage} totalPages={totalPages} />
+        )}
       </div>
     </section>
   );

@@ -11,6 +11,7 @@ export interface VariantOption {
   id: string;
   name: string;
   priceOverride: number | null;
+  stock: number;
 }
 
 interface VariantSelectorProps {

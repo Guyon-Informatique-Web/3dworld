@@ -33,6 +33,7 @@ export default async function AdminProductsPage() {
     name: product.name,
     slug: product.slug,
     price: product.price.toString(),
+    stock: product.stock,
     images: product.images,
     isActive: product.isActive,
     hasVariants: product.hasVariants,

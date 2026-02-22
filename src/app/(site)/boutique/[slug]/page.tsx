@@ -8,6 +8,10 @@ import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import ProductImages from "@/components/shop/ProductImages";
 import ProductDetailClient from "./ProductDetailClient";
+import WishlistButton from "@/components/shop/WishlistButton";
+import ReviewList from "@/components/shop/ReviewList";
+import ReviewForm from "@/components/shop/ReviewForm";
+import RelatedProducts from "@/components/shop/RelatedProducts";
 
 interface ProductPageProps {
   params: Promise<{ slug: string }>;
@@ -39,6 +43,7 @@ async function getProduct(slug: string) {
           id: true,
           name: true,
           priceOverride: true,
+          stock: true,
           isActive: true,
         },
       },
@@ -55,13 +60,16 @@ async function getProduct(slug: string) {
     slug: product.slug,
     description: product.description,
     price: Number(product.price),
+    stock: product.stock,
     images: product.images,
     hasVariants: product.hasVariants,
+    categoryId: product.categoryId,
     category: product.category,
     variants: product.variants.map((v) => ({
       id: v.id,
       name: v.name,
       priceOverride: v.priceOverride !== null ? Number(v.priceOverride) : null,
+      stock: v.stock,
       isActive: v.isActive,
     })),
   };
@@ -144,10 +152,13 @@ export default async function ProductPage({ params }: ProductPageProps) {
               {product.category.name}
             </Link>
 
-            {/* Nom du produit */}
-            <h1 className="text-2xl font-bold text-text lg:text-3xl">
-              {product.name}
-            </h1>
+            {/* Nom du produit + Bouton favoris */}
+            <div className="flex items-start justify-between gap-4">
+              <h1 className="text-2xl font-bold text-text lg:text-3xl">
+                {product.name}
+              </h1>
+              <WishlistButton productId={product.id} />
+            </div>
 
             {/* Prix de base (affiche a cote si pas de variantes) */}
             {!product.hasVariants && (
@@ -169,6 +180,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
                 id: product.id,
                 name: product.name,
                 price: product.price,
+                stock: product.stock,
                 image: product.images.length > 0 ? product.images[0] : null,
               }}
               hasVariants={product.hasVariants}
@@ -176,7 +188,33 @@ export default async function ProductPage({ params }: ProductPageProps) {
             />
           </div>
         </div>
+
+        {/* Avis clients */}
+        <div className="mt-20 border-t border-gray-200 pt-12">
+          <h2 className="mb-8 text-2xl font-bold text-text">Avis clients</h2>
+
+          <div className="grid grid-cols-1 gap-12 md:grid-cols-3">
+            {/* Avis existants */}
+            <div className="md:col-span-2">
+              <ReviewList productId={product.id} />
+            </div>
+
+            {/* Formulaire ajout avis */}
+            <div>
+              <h3 className="mb-4 font-semibold text-text">
+                Laisser un avis
+              </h3>
+              <ReviewForm productId={product.id} />
+            </div>
+          </div>
+        </div>
       </div>
+
+      {/* Produits associes */}
+      <RelatedProducts
+        categoryId={product.categoryId}
+        currentProductId={product.id}
+      />
     </section>
   );
 }

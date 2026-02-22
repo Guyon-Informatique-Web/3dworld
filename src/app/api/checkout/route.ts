@@ -7,6 +7,7 @@ import { stripe } from "@/lib/stripe";
 import { prisma } from "@/lib/prisma";
 import { createOrder } from "@/lib/orders";
 import { createClient } from "@/lib/supabase/server";
+import { validateCoupon, calculateDiscount } from "@/lib/coupons";
 import type { ShippingMethod } from "@/generated/prisma/client";
 
 /** Article envoye par le client */
@@ -24,6 +25,7 @@ interface CheckoutBody {
   phone?: string;
   shippingMethod: ShippingMethod;
   shippingAddress?: string;
+  couponCode?: string;
 }
 
 export async function POST(request: Request) {
@@ -81,14 +83,14 @@ export async function POST(request: Request) {
       // Pas de session — commande invitée, on continue
     }
 
-    // Récupérer les produits et variantes depuis la BDD pour vérifier les prix
+    // Récupérer les produits et variantes depuis la BDD pour vérifier les prix et le stock
     const productIds = [...new Set(body.items.map((i) => i.productId))];
     const products = await prisma.product.findMany({
       where: { id: { in: productIds }, isActive: true },
       include: {
         variants: {
           where: { isActive: true },
-          select: { id: true, name: true, priceOverride: true },
+          select: { id: true, name: true, priceOverride: true, stock: true },
         },
       },
     });
@@ -131,7 +133,7 @@ export async function POST(request: Request) {
         );
       }
 
-      // Déterminer le prix unitaire (variante ou produit de base)
+      // Déterminer le prix unitaire et vérifier le stock (variante ou produit de base)
       let unitPrice = Number(product.price);
       let itemName = product.name;
 
@@ -143,10 +145,25 @@ export async function POST(request: Request) {
             { status: 400 }
           );
         }
+        // Vérifier le stock de la variante
+        if (variant.stock < item.quantity) {
+          return NextResponse.json(
+            { error: `Stock insuffisant pour ${product.name} - ${variant.name}. Disponible: ${variant.stock}` },
+            { status: 400 }
+          );
+        }
         if (variant.priceOverride !== null) {
           unitPrice = Number(variant.priceOverride);
         }
         itemName = `${product.name} - ${variant.name}`;
+      } else {
+        // Vérifier le stock du produit
+        if (product.stock < item.quantity) {
+          return NextResponse.json(
+            { error: `Stock insuffisant pour ${product.name}. Disponible: ${product.stock}` },
+            { status: 400 }
+          );
+        }
       }
 
       subtotal += unitPrice * item.quantity;
@@ -201,7 +218,34 @@ export async function POST(request: Request) {
       });
     }
 
-    const totalAmount = subtotal + shippingCost;
+    // Valider et appliquer le coupon si fourni
+    let discountAmount = 0;
+    let couponId: string | undefined;
+    if (body.couponCode) {
+      const couponValidation = await validateCoupon(body.couponCode, subtotal);
+      if (couponValidation.valid && couponValidation.coupon) {
+        discountAmount = calculateDiscount(
+          couponValidation.coupon.discountType,
+          couponValidation.coupon.discountValue,
+          subtotal
+        );
+        couponId = couponValidation.coupon.id;
+
+        // Ajouter la remise comme line item négatif Stripe
+        if (discountAmount > 0) {
+          lineItems.push({
+            price_data: {
+              currency: "eur",
+              product_data: { name: `Remise - ${couponValidation.coupon.code}` },
+              unit_amount: -Math.round(discountAmount * 100),
+            },
+            quantity: 1,
+          });
+        }
+      }
+    }
+
+    const totalAmount = subtotal + shippingCost - discountAmount;
 
     // Créer la commande PENDING en base
     const order = await createOrder({
@@ -214,7 +258,17 @@ export async function POST(request: Request) {
       shippingAddress: body.shippingAddress?.trim(),
       totalAmount,
       items: orderItems,
+      couponId,
+      discountAmount,
     });
+
+    // Incrémenter le compteur d'utilisation du coupon
+    if (couponId) {
+      await prisma.coupon.update({
+        where: { id: couponId },
+        data: { currentUses: { increment: 1 } },
+      });
+    }
 
     // Construire les URLs de retour
     const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";

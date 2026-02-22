@@ -9,6 +9,7 @@ import type { ProductCardData } from "@/components/shop/ProductCard";
 
 interface ShopGridProps {
   products: ProductCardData[];
+  searchQuery?: string | null;
 }
 
 /**
@@ -16,7 +17,7 @@ interface ShopGridProps {
  * Chaque carte apparait avec une animation fade-in staggeree.
  * Affiche un message si aucun produit ne correspond aux filtres.
  */
-export default function ShopGrid({ products }: ShopGridProps) {
+export default function ShopGrid({ products, searchQuery = null }: ShopGridProps) {
   if (products.length === 0) {
     return (
       <div className="mx-auto max-w-6xl px-4 pb-20">
@@ -37,10 +38,14 @@ export default function ShopGrid({ products }: ShopGridProps) {
             <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" />
           </svg>
           <p className="text-lg font-medium text-text-light">
-            Aucun produit dans cette catégorie pour le moment.
+            {searchQuery
+              ? `Aucun résultat pour « ${searchQuery} »`
+              : "Aucun produit dans cette catégorie pour le moment."}
           </p>
           <p className="mt-1 text-sm text-text-light">
-            Essayez une autre catégorie ou revenez plus tard.
+            {searchQuery
+              ? "Essayez une autre recherche ou parcourez toutes nos catégories."
+              : "Essayez une autre catégorie ou revenez plus tard."}
           </p>
         </div>
       </div>

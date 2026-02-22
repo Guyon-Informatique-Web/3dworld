@@ -45,6 +45,7 @@ export default async function EditProductPage({ params }: EditProductPageProps) 
     name: product.name,
     description: product.description,
     price: product.price.toString(),
+    stock: product.stock,
     categoryId: product.categoryId,
     images: product.images,
     hasVariants: product.hasVariants,
@@ -55,6 +56,7 @@ export default async function EditProductPage({ params }: EditProductPageProps) 
     id: variant.id,
     name: variant.name,
     priceOverride: variant.priceOverride ? variant.priceOverride.toString() : null,
+    stock: variant.stock,
     attributes: (variant.attributes ?? {}) as Record<string, string>,
     isActive: variant.isActive,
   }));

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import Logo from "@/components/ui/Logo";
+import NewsletterForm from "@/components/newsletter/NewsletterForm";
 
 /** Liens rapides du footer */
 const QUICK_LINKS = [
@@ -7,14 +8,25 @@ const QUICK_LINKS = [
   { label: "Services", href: "/services" },
   { label: "Boutique", href: "/boutique" },
   { label: "Réalisations", href: "/realisations" },
+  { label: "Blog", href: "/blog" },
   { label: "À propos", href: "/a-propos" },
   { label: "Contact", href: "/contact" },
+  { label: "FAQ", href: "/faq" },
+] as const;
+
+/** Informations légales du footer */
+const LEGAL_LINKS = [
+  { label: "Mentions légales", href: "/mentions-legales" },
+  { label: "CGV", href: "/cgv" },
+  { label: "Politique de confidentialité", href: "/politique-de-confidentialite" },
+  { label: "Politique de cookies", href: "/politique-cookies" },
 ] as const;
 
 /**
- * Footer du site avec 3 colonnes :
+ * Footer du site avec 4 colonnes :
  * - Logo + description
  * - Liens rapides
+ * - Informations légales
  * - Contact + réseaux sociaux
  */
 export default function Footer() {
@@ -24,7 +36,7 @@ export default function Footer() {
     <footer className="bg-text text-gray-300">
       {/* Contenu principal du footer */}
       <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 gap-10 md:grid-cols-3">
+        <div className="grid grid-cols-1 gap-10 md:grid-cols-2 lg:grid-cols-4">
           {/* Colonne 1 : Logo et description */}
           <div className="flex flex-col gap-4">
             <Logo className="[&_span]:text-white" />
@@ -54,7 +66,26 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* Colonne 3 : Contact et réseaux sociaux */}
+          {/* Colonne 3 : Informations légales */}
+          <div>
+            <h3 className="mb-4 text-sm font-semibold uppercase tracking-wider text-white">
+              Informations légales
+            </h3>
+            <ul className="flex flex-col gap-2">
+              {LEGAL_LINKS.map((link) => (
+                <li key={link.href}>
+                  <Link
+                    href={link.href}
+                    className="text-sm text-gray-400 transition-colors hover:text-white"
+                  >
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Colonne 4 : Contact et réseaux sociaux */}
           <div>
             <h3 className="mb-4 text-sm font-semibold uppercase tracking-wider text-white">
               Contact
@@ -187,6 +218,23 @@ export default function Footer() {
                 </svg>
               </a>
             </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Section Newsletter */}
+      <div className="border-t border-gray-700/50 pt-8 mt-8">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col gap-4">
+            <div>
+              <h3 className="mb-2 text-lg font-bold text-white">
+                Restez informé
+              </h3>
+              <p className="text-gray-400">
+                Recevez nos nouveautés et offres exclusives.
+              </p>
+            </div>
+            <NewsletterForm />
           </div>
         </div>
       </div>

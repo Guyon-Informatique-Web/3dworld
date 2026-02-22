@@ -7,6 +7,7 @@ import { createElement } from "react";
 import { OrderConfirmation } from "@/components/emails/OrderConfirmation";
 import { NewOrderNotification } from "@/components/emails/NewOrderNotification";
 import { OrderStatusUpdate } from "@/components/emails/OrderStatusUpdate";
+import { ShippingNotification } from "@/components/emails/ShippingNotification";
 import { ErrorAlert } from "@/components/emails/ErrorAlert";
 import type { OrderStatus } from "@/generated/prisma/client";
 
@@ -119,6 +120,34 @@ export async function sendOrderStatusUpdate(
     console.log(`Email mise a jour statut envoye a ${order.email} (${newStatus})`);
   } catch (error) {
     console.error("Erreur envoi email mise a jour statut:", error);
+  }
+}
+
+/**
+ * Envoie l'email de notification d'expédition avec numéro de suivi au client.
+ * Appele depuis l'action admin quand le numéro de suivi est enregistré.
+ */
+export async function sendShippingNotification(
+  order: EmailOrderData,
+  trackingNumber: string,
+  trackingUrl?: string
+): Promise<void> {
+  try {
+    await resend.emails.send({
+      from: FROM_EMAIL,
+      to: order.email,
+      subject: `Commande #${order.id.slice(0, 8).toUpperCase()} — Votre colis est en route !`,
+      react: createElement(ShippingNotification, {
+        order,
+        trackingNumber,
+        trackingUrl,
+      }),
+    });
+    console.log(
+      `Email notification expedition envoye a ${order.email} (commande ${order.id})`
+    );
+  } catch (error) {
+    console.error("Erreur envoi email notification expedition:", error);
   }
 }
 

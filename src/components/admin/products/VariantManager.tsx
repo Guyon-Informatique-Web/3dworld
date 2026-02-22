@@ -17,6 +17,7 @@ export interface VariantData {
   id: string;
   name: string;
   priceOverride: string | null;
+  stock: number;
   attributes: Record<string, string>;
   isActive: boolean;
 }
@@ -40,6 +41,7 @@ interface AttributePair {
 interface VariantFormState {
   name: string;
   priceOverride: string;
+  stock: string;
   attributes: AttributePair[];
 }
 
@@ -47,6 +49,7 @@ interface VariantFormState {
 const EMPTY_FORM: VariantFormState = {
   name: "",
   priceOverride: "",
+  stock: "0",
   attributes: [],
 };
 
@@ -95,6 +98,7 @@ export default function VariantManager({
     setForm({
       name: variant.name,
       priceOverride: variant.priceOverride ?? "",
+      stock: String(variant.stock),
       attributes: pairs,
     });
     setEditingId(variant.id);
@@ -139,6 +143,7 @@ export default function VariantManager({
     const formData = new FormData();
     formData.set("name", form.name);
     formData.set("priceOverride", form.priceOverride);
+    formData.set("stock", form.stock);
 
     // Convertir les paires attributs en objet JSON (filtrer les clés vides)
     const attributesObj: Record<string, string> = {};
@@ -238,6 +243,7 @@ export default function VariantManager({
                 <tr className="border-b border-gray-200 text-left text-text-light">
                   <th className="pb-2 pr-4 font-medium">Nom</th>
                   <th className="pb-2 pr-4 font-medium">Prix</th>
+                  <th className="pb-2 pr-4 font-medium">Stock</th>
                   <th className="pb-2 pr-4 font-medium">Attributs</th>
                   <th className="pb-2 pr-4 font-medium">Statut</th>
                   <th className="pb-2 font-medium text-right">Actions</th>
@@ -260,6 +266,11 @@ export default function VariantManager({
                           {parseFloat(productPrice).toFixed(2)} EUR (produit)
                         </span>
                       )}
+                    </td>
+
+                    {/* Stock */}
+                    <td className="py-3 pr-4">
+                      <span className="font-medium">{variant.stock}</span>
                     </td>
 
                     {/* Attributs sous forme de badges */}
@@ -417,6 +428,30 @@ export default function VariantManager({
                 <p className="mt-1 text-xs text-text-light">
                   Laissez vide pour utiliser le prix du produit parent.
                 </p>
+              </div>
+
+              {/* Champ stock (optionnel) */}
+              <div>
+                <label
+                  htmlFor="variant-stock"
+                  className="mb-1 block text-sm font-medium text-text"
+                >
+                  Stock
+                </label>
+                <input
+                  id="variant-stock"
+                  type="number"
+                  min="0"
+                  value={form.stock}
+                  onChange={(e) =>
+                    setForm((prev) => ({
+                      ...prev,
+                      stock: e.target.value,
+                    }))
+                  }
+                  placeholder="0"
+                  className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-text placeholder:text-text-light focus:border-primary focus:ring-1 focus:ring-primary focus:outline-none"
+                />
               </div>
 
               {/* Attributs dynamiques (paires clé/valeur) */}

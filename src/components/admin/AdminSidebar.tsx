@@ -68,6 +68,27 @@ const ADMIN_LINKS = [
     ),
   },
   {
+    label: "Coupons",
+    href: "/admin/coupons",
+    icon: (
+      <svg
+        width="20"
+        height="20"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <polyline points="6 9 6 2 18 2 18 9" />
+        <path d="M6 18s0-5 6-5 6 5 6 5" />
+        <line x1="10" y1="14" x2="10" y2="14.01" />
+        <line x1="14" y1="14" x2="14" y2="14.01" />
+      </svg>
+    ),
+  },
+  {
     label: "Commandes",
     href: "/admin/commandes",
     icon: (
@@ -84,6 +105,82 @@ const ADMIN_LINKS = [
         <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z" />
         <line x1="3" y1="6" x2="21" y2="6" />
         <path d="M16 10a4 4 0 0 1-8 0" />
+      </svg>
+    ),
+  },
+  {
+    label: "Newsletter",
+    href: "/admin/newsletter",
+    icon: (
+      <svg
+        width="20"
+        height="20"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <rect width="20" height="16" x="2" y="4" rx="2" />
+        <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
+      </svg>
+    ),
+  },
+  {
+    label: "Blog",
+    href: "/admin/blog",
+    icon: (
+      <svg
+        width="20"
+        height="20"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <path d="M4 4h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z" />
+        <path d="M4 9h16" />
+        <path d="M4 6v3" />
+      </svg>
+    ),
+  },
+  {
+    label: "Avis",
+    href: "/admin/avis",
+    icon: (
+      <svg
+        width="20"
+        height="20"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <polygon points="12 2 15.09 10.26 24 10.5 18 16.16 20.16 24 12 19.54 3.84 24 6 16.16 0 10.5 8.91 10.26 12 2" />
+      </svg>
+    ),
+  },
+  {
+    label: "FAQ",
+    href: "/admin/faq",
+    icon: (
+      <svg
+        width="20"
+        height="20"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <circle cx="12" cy="12" r="10" />
+        <path d="M12 16v-4m0-4h.01" />
       </svg>
     ),
   },

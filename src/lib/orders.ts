@@ -23,6 +23,8 @@ interface CreateOrderData {
   shippingAddress?: string;
   totalAmount: number;
   items: CreateOrderItemData[];
+  couponId?: string;
+  discountAmount?: number;
 }
 
 /**
@@ -41,6 +43,8 @@ export async function createOrder(data: CreateOrderData) {
       shippingMethod: data.shippingMethod,
       shippingCost: data.shippingCost,
       shippingAddress: data.shippingAddress ?? null,
+      couponId: data.couponId ?? null,
+      discountAmount: data.discountAmount ?? 0,
       items: {
         create: data.items.map((item) => ({
           productId: item.productId,

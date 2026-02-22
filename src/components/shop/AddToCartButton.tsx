@@ -29,6 +29,8 @@ interface AddToCartButtonProps {
   selectedVariant: CartVariant | null;
   /** Le produit a-t-il des variantes ? */
   hasVariants: boolean;
+  /** Stock disponible (variante ou produit) */
+  stock: number;
 }
 
 /**
@@ -40,13 +42,14 @@ export default function AddToCartButton({
   product,
   selectedVariant,
   hasVariants,
+  stock,
 }: AddToCartButtonProps) {
   const [quantity, setQuantity] = useState(1);
   const [showFeedback, setShowFeedback] = useState(false);
   const { addItem } = useCart();
 
-  // Desactive si le produit a des variantes mais aucune n'est selectionnee
-  const isDisabled = hasVariants && !selectedVariant;
+  // Desactive si le produit a des variantes mais aucune n'est selectionnee, ou si rupture de stock
+  const isDisabled = (hasVariants && !selectedVariant) || stock <= 0;
 
   /** Gere le changement de quantite */
   function handleQuantityChange(newQty: number) {
@@ -80,40 +83,42 @@ export default function AddToCartButton({
   return (
     <div className="flex flex-col gap-3">
       {/* Selecteur de quantite */}
-      <div className="flex items-center gap-3">
-        <label htmlFor="quantity" className="text-sm font-medium text-text">
-          Quantit&eacute; :
-        </label>
-        <div className="flex items-center overflow-hidden rounded-lg border border-gray-200">
-          <button
-            type="button"
-            onClick={() => handleQuantityChange(quantity - 1)}
-            disabled={quantity <= 1}
-            className="flex h-10 w-10 cursor-pointer items-center justify-center text-lg font-medium text-text transition-colors hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-40"
-            aria-label="Reduire la quantite"
-          >
-            -
-          </button>
-          <input
-            id="quantity"
-            type="number"
-            min={1}
-            max={99}
-            value={quantity}
-            onChange={(e) => handleQuantityChange(parseInt(e.target.value, 10) || 1)}
-            className="h-10 w-14 border-x border-gray-200 text-center text-sm font-medium text-text outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
-          />
-          <button
-            type="button"
-            onClick={() => handleQuantityChange(quantity + 1)}
-            disabled={quantity >= 99}
-            className="flex h-10 w-10 cursor-pointer items-center justify-center text-lg font-medium text-text transition-colors hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-40"
-            aria-label="Augmenter la quantite"
-          >
-            +
-          </button>
+      {stock > 0 && (
+        <div className="flex items-center gap-3">
+          <label htmlFor="quantity" className="text-sm font-medium text-text">
+            Quantit&eacute; :
+          </label>
+          <div className="flex items-center overflow-hidden rounded-lg border border-gray-200">
+            <button
+              type="button"
+              onClick={() => handleQuantityChange(quantity - 1)}
+              disabled={quantity <= 1}
+              className="flex h-10 w-10 cursor-pointer items-center justify-center text-lg font-medium text-text transition-colors hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-40"
+              aria-label="Reduire la quantite"
+            >
+              -
+            </button>
+            <input
+              id="quantity"
+              type="number"
+              min={1}
+              max={Math.min(99, stock)}
+              value={quantity}
+              onChange={(e) => handleQuantityChange(parseInt(e.target.value, 10) || 1)}
+              className="h-10 w-14 border-x border-gray-200 text-center text-sm font-medium text-text outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+            />
+            <button
+              type="button"
+              onClick={() => handleQuantityChange(quantity + 1)}
+              disabled={quantity >= Math.min(99, stock)}
+              className="flex h-10 w-10 cursor-pointer items-center justify-center text-lg font-medium text-text transition-colors hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-40"
+              aria-label="Augmenter la quantite"
+            >
+              +
+            </button>
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Bouton d'ajout au panier */}
       <button
@@ -129,7 +134,9 @@ export default function AddToCartButton({
         }`}
       >
         {isDisabled
-          ? "Selectionnez une variante"
+          ? stock <= 0
+            ? "Rupture de stock"
+            : "Selectionnez une variante"
           : showFeedback
             ? "Ajoute !"
             : "Ajouter au panier"}

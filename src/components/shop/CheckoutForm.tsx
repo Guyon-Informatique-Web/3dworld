@@ -38,6 +38,16 @@ export default function CheckoutForm({ shopSettings }: CheckoutFormProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Coupon
+  const [couponCode, setCouponCode] = useState("");
+  const [appliedCoupon, setAppliedCoupon] = useState<{
+    code: string;
+    discountType: "PERCENTAGE" | "FIXED";
+    discountValue: number;
+  } | null>(null);
+  const [couponError, setCouponError] = useState<string | null>(null);
+  const [couponLoading, setCouponLoading] = useState(false);
+
   // Pré-remplir avec les infos de l'utilisateur connecté
   useEffect(() => {
     async function prefillUser() {
@@ -59,13 +69,24 @@ export default function CheckoutForm({ shopSettings }: CheckoutFormProps) {
     prefillUser();
   }, []);
 
-  // Calculer les frais de livraison
+  // Calculer les frais de livraison et remise
   const isDelivery = shippingMethod === "DELIVERY";
   const isFreeShipping =
     shopSettings.freeShippingThreshold !== null &&
     subtotal >= shopSettings.freeShippingThreshold;
   const shippingCost = isDelivery && !isFreeShipping ? shopSettings.shippingFixedPrice : 0;
-  const total = subtotal + shippingCost;
+
+  // Calculer la remise du coupon
+  let discountAmount = 0;
+  if (appliedCoupon) {
+    if (appliedCoupon.discountType === "PERCENTAGE") {
+      discountAmount = Math.min((appliedCoupon.discountValue / 100) * subtotal, subtotal);
+    } else {
+      discountAmount = Math.min(appliedCoupon.discountValue, subtotal);
+    }
+  }
+
+  const total = subtotal + shippingCost - discountAmount;
 
   // Si le panier est vide, ne pas afficher le formulaire
   if (items.length === 0) {
@@ -122,6 +143,7 @@ export default function CheckoutForm({ shopSettings }: CheckoutFormProps) {
           phone: phone.trim() || undefined,
           shippingMethod,
           shippingAddress: isDelivery ? shippingAddress.trim() : undefined,
+          couponCode: appliedCoupon ? appliedCoupon.code : undefined,
         }),
       });
 
@@ -141,6 +163,45 @@ export default function CheckoutForm({ shopSettings }: CheckoutFormProps) {
     } catch {
       setError("Une erreur est survenue. Veuillez réessayer.");
       setIsLoading(false);
+    }
+  }
+
+  /** Appliquer un code coupon */
+  async function handleApplyCoupon() {
+    setCouponError(null);
+    setCouponLoading(true);
+
+    try {
+      const response = await fetch("/api/coupon/validate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          code: couponCode.trim().toUpperCase(),
+          subtotal,
+        }),
+      });
+
+      const data = (await response.json()) as {
+        valid: boolean;
+        coupon?: {
+          id: string;
+          code: string;
+          discountType: "PERCENTAGE" | "FIXED";
+          discountValue: number;
+        };
+        error?: string;
+      };
+
+      if (data.valid && data.coupon) {
+        setAppliedCoupon(data.coupon);
+        setCouponCode("");
+      } else {
+        setCouponError(data.error || "Erreur lors de la validation du coupon.");
+      }
+    } catch {
+      setCouponError("Erreur lors de la validation du coupon.");
+    } finally {
+      setCouponLoading(false);
     }
   }
 
@@ -327,6 +388,56 @@ export default function CheckoutForm({ shopSettings }: CheckoutFormProps) {
             Récapitulatif
           </h2>
 
+          {/* Code coupon */}
+          <div className="mb-4 rounded-lg border border-gray-200 bg-gray-50 p-4">
+            <label htmlFor="coupon-code" className="mb-2 block text-sm font-medium text-text">
+              Code coupon (optionnel)
+            </label>
+            <div className="flex gap-2">
+              <input
+                id="coupon-code"
+                type="text"
+                value={couponCode}
+                onChange={(e) => {
+                  setCouponCode(e.target.value);
+                  setCouponError(null);
+                }}
+                placeholder="Entrez votre code"
+                disabled={couponLoading || appliedCoupon !== null}
+                className="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm text-text placeholder:text-text-light focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 disabled:bg-gray-100 disabled:text-text-light"
+              />
+              <button
+                type="button"
+                onClick={handleApplyCoupon}
+                disabled={couponLoading || !couponCode.trim() || appliedCoupon !== null}
+                className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-primary-dark disabled:bg-gray-300 disabled:cursor-not-allowed"
+              >
+                {couponLoading ? "..." : "Appliquer"}
+              </button>
+            </div>
+
+            {/* Message d'erreur coupon */}
+            {couponError && (
+              <p className="mt-2 text-xs text-red-600">{couponError}</p>
+            )}
+
+            {/* Coupon appliqué */}
+            {appliedCoupon && (
+              <div className="mt-2 flex items-center justify-between rounded bg-green-50 p-2">
+                <span className="text-xs font-medium text-green-700">
+                  Code appliqué: {appliedCoupon.code}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setAppliedCoupon(null)}
+                  className="text-xs font-medium text-green-600 hover:text-green-700"
+                >
+                  Supprimer
+                </button>
+              </div>
+            )}
+          </div>
+
           {/* Liste des articles */}
           <div className="mb-4 max-h-64 space-y-3 overflow-y-auto border-b border-gray-100 pb-4">
             {items.map((item) => (
@@ -370,6 +481,14 @@ export default function CheckoutForm({ shopSettings }: CheckoutFormProps) {
                 {shippingCost > 0 ? formatPrice(shippingCost) : "Gratuit"}
               </span>
             </div>
+            {appliedCoupon && discountAmount > 0 && (
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-green-600 font-medium">Remise coupon</span>
+                <span className="font-medium text-green-600">
+                  -{formatPrice(discountAmount)}
+                </span>
+              </div>
+            )}
           </div>
 
           {/* Total */}

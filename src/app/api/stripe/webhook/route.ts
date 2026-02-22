@@ -5,6 +5,7 @@
 
 import { NextResponse } from "next/server";
 import { stripe } from "@/lib/stripe";
+import { prisma } from "@/lib/prisma";
 import { updateOrderStatus, getOrderById } from "@/lib/orders";
 import { sendOrderConfirmation, sendNewOrderNotification, sendErrorAlert } from "@/lib/email";
 import type Stripe from "stripe";
@@ -62,13 +63,42 @@ export async function POST(request: Request) {
       }
 
       try {
-        // Mettre a jour la commande en PAID avec l'ID de session Stripe
-        await updateOrderStatus(orderId, "PAID", session.id);
+        // Recuperer la commande avec ses articles avant la mise a jour
+        const order = await getOrderById(orderId);
+
+        if (order) {
+          // Utiliser une transaction pour garantir l'atomicite
+          await prisma.$transaction(async (tx) => {
+            // Decrementer le stock pour chaque article de la commande
+            for (const item of order.items) {
+              if (item.variantId) {
+                // Decrementer le stock de la variante
+                await tx.productVariant.update({
+                  where: { id: item.variantId },
+                  data: { stock: { decrement: item.quantity } },
+                });
+              } else {
+                // Decrementer le stock du produit
+                await tx.product.update({
+                  where: { id: item.productId },
+                  data: { stock: { decrement: item.quantity } },
+                });
+              }
+            }
+
+            // Mettre a jour la commande en PAID avec l'ID de session Stripe
+            await tx.order.update({
+              where: { id: orderId },
+              data: { status: "PAID", stripeSessionId: session.id },
+            });
+          });
+        }
+
         console.log(
-          `Commande ${orderId} mise a jour en PAID (session: ${session.id})`
+          `Commande ${orderId} mise a jour en PAID et stock decrementes (session: ${session.id})`
         );
 
-        // Recuperer la commande complete pour les emails (avec articles et produits)
+        // Recuperer la commande complete pour les emails
         const fullOrder = await getOrderById(orderId);
 
         if (fullOrder) {

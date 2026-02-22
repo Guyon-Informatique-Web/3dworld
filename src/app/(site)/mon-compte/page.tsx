@@ -29,6 +29,7 @@ export default async function MonComptePage() {
       id: true,
       status: true,
       totalAmount: true,
+      trackingNumber: true,
       createdAt: true,
       _count: {
         select: { items: true },

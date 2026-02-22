@@ -7,7 +7,7 @@ import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import type { OrderStatus } from "@/generated/prisma/client";
-import { updateOrderStatus } from "@/app/admin/commandes/actions";
+import { updateOrderStatus, updateTracking } from "@/app/admin/commandes/actions";
 import OrderStatusBadge from "./OrderStatusBadge";
 
 /** Article d'une commande avec produit et variante */
@@ -37,6 +37,8 @@ interface OrderData {
   shippingMethod: string;
   shippingCost: string;
   shippingAddress: string | null;
+  trackingNumber: string | null;
+  trackingUrl: string | null;
   createdAt: string;
   updatedAt: string;
   items: OrderItemData[];
@@ -82,6 +84,11 @@ export default function OrderDetail({ order }: OrderDetailProps) {
   const [success, setSuccess] = useState<string | null>(null);
   // Chargement en cours (identifiant du statut cible)
   const [loading, setLoading] = useState<OrderStatus | null>(null);
+  // Etat du formulaire de suivi
+  const [editingTracking, setEditingTracking] = useState(false);
+  const [trackingNumber, setTrackingNumber] = useState(order.trackingNumber ?? "");
+  const [trackingUrl, setTrackingUrl] = useState(order.trackingUrl ?? "");
+  const [trackingLoading, setTrackingLoading] = useState(false);
 
   /**
    * Change le statut de la commande via la server action.
@@ -99,6 +106,36 @@ export default function OrderDetail({ order }: OrderDetailProps) {
       setError(result.error ?? "Erreur lors de la mise à jour du statut.");
     } else {
       setSuccess("Statut mis à jour avec succès.");
+    }
+  }
+
+  /**
+   * Enregistre le numéro et l'URL de suivi via la server action.
+   */
+  async function handleSaveTracking() {
+    setError(null);
+    setSuccess(null);
+
+    if (!trackingNumber.trim()) {
+      setError("Le numéro de suivi est obligatoire.");
+      return;
+    }
+
+    setTrackingLoading(true);
+
+    const result = await updateTracking(
+      order.id,
+      trackingNumber,
+      trackingUrl || undefined
+    );
+
+    setTrackingLoading(false);
+
+    if (!result.success) {
+      setError(result.error ?? "Erreur lors de l'enregistrement du suivi.");
+    } else {
+      setSuccess("Suivi enregistré avec succès.");
+      setEditingTracking(false);
     }
   }
 
@@ -211,6 +248,97 @@ export default function OrderDetail({ order }: OrderDetailProps) {
           </div>
         </div>
       </div>
+
+      {/* Suivi (visible si status est PROCESSING, SHIPPED ou DELIVERED) */}
+      {["PROCESSING", "SHIPPED", "DELIVERED"].includes(order.status) && (
+        <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-sm font-semibold uppercase tracking-wider text-text-light">
+              Suivi de colis
+            </h2>
+            {!editingTracking && order.trackingNumber && (
+              <button
+                onClick={() => setEditingTracking(true)}
+                className="text-xs font-medium text-primary hover:text-primary-dark transition-colors"
+              >
+                Modifier
+              </button>
+            )}
+          </div>
+
+          {!editingTracking && order.trackingNumber ? (
+            <div className="space-y-3">
+              <div>
+                <span className="text-xs text-text-light">Numéro de suivi</span>
+                <p className="font-mono text-sm font-medium text-text mt-1">
+                  {order.trackingNumber}
+                </p>
+              </div>
+              {order.trackingUrl && (
+                <div>
+                  <span className="text-xs text-text-light">Lien de suivi</span>
+                  <a
+                    href={order.trackingUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-xs font-medium text-primary hover:underline mt-1 block break-all"
+                  >
+                    {order.trackingUrl}
+                  </a>
+                </div>
+              )}
+            </div>
+          ) : (
+            <div className="space-y-4">
+              <div>
+                <label className="block text-xs font-medium text-text-light mb-2">
+                  Numéro de suivi
+                </label>
+                <input
+                  type="text"
+                  value={trackingNumber}
+                  onChange={(e) => setTrackingNumber(e.target.value)}
+                  placeholder="Ex: 1Z999AA10123456784"
+                  className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm font-medium text-text focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-text-light mb-2">
+                  Lien de suivi (optionnel)
+                </label>
+                <input
+                  type="url"
+                  value={trackingUrl}
+                  onChange={(e) => setTrackingUrl(e.target.value)}
+                  placeholder="https://..."
+                  className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm font-medium text-text focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+                />
+              </div>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={handleSaveTracking}
+                  disabled={trackingLoading || !trackingNumber.trim()}
+                  className="rounded-lg bg-blue-500 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {trackingLoading ? "Enregistrement..." : "Enregistrer le suivi"}
+                </button>
+                {!order.trackingNumber && (
+                  <button
+                    onClick={() => {
+                      setEditingTracking(false);
+                      setTrackingNumber("");
+                      setTrackingUrl("");
+                    }}
+                    className="rounded-lg border border-gray-200 px-4 py-2 text-sm font-medium text-text transition-colors hover:bg-gray-50"
+                  >
+                    Annuler
+                  </button>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Articles */}
       <div className="rounded-xl border border-gray-200 bg-white shadow-sm">

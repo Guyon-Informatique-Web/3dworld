@@ -23,6 +23,7 @@ interface ProductDetailClientProps {
     id: string;
     name: string;
     price: number;
+    stock: number;
     image: string | null;
   };
   /** Le produit a-t-il des variantes ? */
@@ -44,6 +45,9 @@ export default function ProductDetailClient({
 
   // Calcul du prix affiche (prix variante ou prix de base)
   const displayPrice = selectedVariant?.priceOverride ?? product.price;
+
+  // Determiner le stock disponible (variante ou produit)
+  const availableStock = selectedVariant?.stock ?? product.stock;
 
   // Construire la variante pour le panier
   const cartVariant: CartVariant | null = selectedVariant
@@ -80,6 +84,7 @@ export default function ProductDetailClient({
         product={product}
         selectedVariant={cartVariant}
         hasVariants={hasVariants}
+        stock={availableStock}
       />
     </div>
   );

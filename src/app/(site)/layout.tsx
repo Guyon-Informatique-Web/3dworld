@@ -4,6 +4,7 @@
 
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
+import CookieBanner from "@/components/ui/CookieBanner";
 import { CartProvider } from "@/context/CartContext";
 
 export default function SiteLayout({
@@ -16,6 +17,7 @@ export default function SiteLayout({
       <Header />
       <main className="min-h-screen">{children}</main>
       <Footer />
+      <CookieBanner />
     </CartProvider>
   );
 }
