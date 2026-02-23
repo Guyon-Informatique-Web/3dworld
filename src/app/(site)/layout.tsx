@@ -6,6 +6,7 @@ import type { Metadata } from "next";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import CookieBanner from "@/components/ui/CookieBanner";
+import ErrorReporter from "@/components/ErrorReporter";
 import { CartProvider } from "@/context/CartContext";
 
 const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://www.3d-world.online";
@@ -64,6 +65,7 @@ export default function SiteLayout({
       <main className="min-h-screen">{children}</main>
       <Footer />
       <CookieBanner />
+      <ErrorReporter />
     </CartProvider>
   );
 }
