@@ -3,6 +3,7 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { sendNewsletterWelcome } from "@/lib/email";
 
 // Validation email avec regex simple
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -51,6 +52,9 @@ export async function POST(request: NextRequest) {
           data: { isActive: true },
         });
 
+        // Envoyer l'email de bienvenue
+        await sendNewsletterWelcome(trimmedEmail);
+
         return NextResponse.json(
           {
             success: true,
@@ -68,6 +72,9 @@ export async function POST(request: NextRequest) {
         isActive: true,
       },
     });
+
+    // Envoyer l'email de bienvenue
+    await sendNewsletterWelcome(trimmedEmail);
 
     return NextResponse.json(
       {

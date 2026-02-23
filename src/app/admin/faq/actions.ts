@@ -175,6 +175,13 @@ export async function reorderFaqItems(ids: string[]): Promise<ActionResult> {
     return { success: false, error: "Liste d'identifiants vide." };
   }
 
+  // Valider que chaque ID est non-vide et valide
+  for (const id of ids) {
+    if (!id || typeof id !== "string" || id.trim().length === 0) {
+      return { success: false, error: "Identifiants FAQ invalides." };
+    }
+  }
+
   // Mettre à jour l'ordre de chaque item dans une transaction
   await prisma.$transaction(
     ids.map((id, index) =>

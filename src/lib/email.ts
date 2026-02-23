@@ -9,6 +9,8 @@ import { NewOrderNotification } from "@/components/emails/NewOrderNotification";
 import { OrderStatusUpdate } from "@/components/emails/OrderStatusUpdate";
 import { ShippingNotification } from "@/components/emails/ShippingNotification";
 import { ErrorAlert } from "@/components/emails/ErrorAlert";
+import { ReviewApprovalNotification } from "@/components/emails/ReviewApprovalNotification";
+import { NewsletterWelcome } from "@/components/emails/NewsletterWelcome";
 import type { OrderStatus } from "@/generated/prisma/client";
 
 // Initialisation du client Resend (singleton)
@@ -195,5 +197,52 @@ export async function sendErrorAlert(
     // Dernier recours : log en console si meme l'email echoue
     console.error("Impossible d'envoyer l'alerte erreur par email:", sendError);
     console.error("Erreur originale:", errorMessage);
+  }
+}
+
+/**
+ * Envoie l'email de notification d'approbation d'avis au client.
+ * Appele apres qu'un admin ait approuve son avis.
+ */
+export async function sendReviewApprovalNotification(
+  customerEmail: string,
+  customerName: string,
+  productName: string,
+  productSlug: string,
+  rating: number
+): Promise<void> {
+  try {
+    await resend.emails.send({
+      from: FROM_EMAIL,
+      to: customerEmail,
+      subject: `Votre avis sur "${productName}" a été approuvé — 3D World`,
+      react: createElement(ReviewApprovalNotification, {
+        customerName,
+        productName,
+        productSlug,
+        rating,
+      }),
+    });
+    console.log(`Email approbation avis envoye a ${customerEmail}`);
+  } catch (error) {
+    console.error("Erreur envoi email approbation avis:", error);
+  }
+}
+
+/**
+ * Envoie l'email de bienvenue newsletter au nouvel abonne.
+ * Appele apres l'inscription a la newsletter.
+ */
+export async function sendNewsletterWelcome(email: string): Promise<void> {
+  try {
+    await resend.emails.send({
+      from: FROM_EMAIL,
+      to: email,
+      subject: "Bienvenue dans la newsletter 3D World !",
+      react: createElement(NewsletterWelcome, { email }),
+    });
+    console.log(`Email bienvenue newsletter envoye a ${email}`);
+  } catch (error) {
+    console.error("Erreur envoi email bienvenue newsletter:", error);
   }
 }

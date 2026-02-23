@@ -17,11 +17,15 @@ function formatDateFR(date: Date): string {
 }
 
 /**
- * Escape les guillemets et les retours a la ligne pour CSV
+ * Échappe les guillemets, retours a la ligne et retours chariot pour CSV
  */
 function escapeCSV(value: string): string {
-  if (value.includes(",") || value.includes(";") || value.includes('"')) {
-    return `"${value.replace(/"/g, '""')}"`;
+  // Vérifier si on doit entourer de guillemets
+  if (value.includes(",") || value.includes(";") || value.includes('"') || value.includes("\n") || value.includes("\r")) {
+    // Remplacer les retours a la ligne et carriage returns par des espaces
+    const cleaned = value.replace(/\r\n/g, " ").replace(/\r/g, " ").replace(/\n/g, " ");
+    // Échapper les guillemets en les doublant
+    return `"${cleaned.replace(/"/g, '""')}"`;
   }
   return value;
 }

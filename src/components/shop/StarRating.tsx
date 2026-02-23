@@ -9,6 +9,7 @@ interface StarRatingProps {
   rating: number;
   size?: "sm" | "md" | "lg";
   interactive?: boolean;
+  disabled?: boolean;
   onChange?: (rating: number) => void;
 }
 
@@ -54,6 +55,7 @@ export default function StarRating({
   rating,
   size = "md",
   interactive = false,
+  disabled = false,
   onChange,
 }: StarRatingProps) {
   const [hoverRating, setHoverRating] = useState<number | null>(null);
@@ -77,12 +79,13 @@ export default function StarRating({
         <button
           key={i}
           type="button"
+          disabled={disabled}
           onClick={() => onChange?.(i + 1)}
           onMouseEnter={() => setHoverRating(i + 1)}
           onMouseLeave={() => setHoverRating(null)}
           className={`${
             i < displayRating ? "text-amber-400" : "text-gray-300"
-          } cursor-pointer transition-colors hover:text-amber-300`}
+          } ${disabled ? "cursor-not-allowed opacity-50" : "cursor-pointer hover:text-amber-300"} transition-colors`}
           aria-label={`Note ${i + 1} sur 5`}
         >
           <StarIcon filled={i < displayRating} size={size} />

@@ -122,6 +122,14 @@ export default function CheckoutForm({ shopSettings }: CheckoutFormProps) {
         return;
       }
 
+      // Validation du format email avec regex
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email.trim())) {
+        setError("Veuillez entrer une adresse email valide.");
+        setIsLoading(false);
+        return;
+      }
+
       if (isDelivery && !shippingAddress.trim()) {
         setError("L'adresse de livraison est obligatoire.");
         setIsLoading(false);

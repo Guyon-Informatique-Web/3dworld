@@ -20,6 +20,14 @@ export async function POST(request: Request) {
       );
     }
 
+    // Validation du sous-total : doit être un nombre positif
+    if (typeof body.subtotal !== "number" || body.subtotal <= 0 || !isFinite(body.subtotal)) {
+      return NextResponse.json(
+        { valid: false, error: "Le sous-total doit être un nombre positif." },
+        { status: 400 }
+      );
+    }
+
     // Valider le coupon
     const result = await validateCoupon(body.code, body.subtotal);
 

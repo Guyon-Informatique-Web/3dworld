@@ -192,12 +192,26 @@ export async function DELETE(request: NextRequest) {
     const prismaUser = await prisma.user.findUnique({
       where: { supabaseId: user.id },
       include: {
-        wishlist: true,
+        wishlist: {
+          include: {
+            items: true,
+          },
+        },
       },
     });
 
     if (!prismaUser || !prismaUser.wishlist) {
       return NextResponse.json({ error: "Wishlist not found" }, { status: 404 });
+    }
+
+    // Vérifier que l'utilisateur authentifié est bien propriétaire du wishlist
+    const wishlistOwner = await prisma.wishlist.findUnique({
+      where: { id: prismaUser.wishlist.id },
+      select: { userId: true },
+    });
+
+    if (!wishlistOwner || wishlistOwner.userId !== prismaUser.id) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
     }
 
     const deletedItem = await prisma.wishlistItem.deleteMany({

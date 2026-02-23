@@ -21,11 +21,17 @@ export const metadata: Metadata = {
 const PRODUCTS_PER_PAGE = 12;
 
 /** Types de tri autorisés */
-type SortOption = "recent" | "price-asc" | "price-desc";
+type SortOption = "recent" | "price-asc" | "price-desc" | "rating" | "name-asc";
 
 /** Vérifie qu'une valeur est un tri valide */
 function isValidSort(value: string | undefined): value is SortOption {
-  return value === "recent" || value === "price-asc" || value === "price-desc";
+  return (
+    value === "recent" ||
+    value === "price-asc" ||
+    value === "price-desc" ||
+    value === "rating" ||
+    value === "name-asc"
+  );
 }
 
 interface BoutiquePageProps {
@@ -34,6 +40,9 @@ interface BoutiquePageProps {
     tri?: string;
     q?: string;
     page?: string;
+    stock?: string;
+    pmin?: string;
+    pmax?: string;
   }>;
 }
 
@@ -44,6 +53,9 @@ export default async function BoutiquePage({ searchParams }: BoutiquePageProps) 
   const searchQuery = params.q ?? null;
   const pageParam = params.page ? parseInt(params.page, 10) : 1;
   const currentPage = Math.max(1, pageParam);
+  const inStockOnly = params.stock === "1";
+  const pmin = params.pmin ? parseFloat(params.pmin) : null;
+  const pmax = params.pmax ? parseFloat(params.pmax) : null;
 
   // Charger les catégories actives pour le filtre
   const categories = await prisma.category.findMany({
@@ -56,6 +68,8 @@ export default async function BoutiquePage({ searchParams }: BoutiquePageProps) 
   const whereClause: {
     isActive: boolean;
     category?: { slug: string };
+    stock?: { gt: number };
+    price?: { gte?: number; lte?: number };
     OR?: Array<{
       name?: { contains: string; mode: "insensitive" };
       description?: { contains: string; mode: "insensitive" };
@@ -82,7 +96,24 @@ export default async function BoutiquePage({ searchParams }: BoutiquePageProps) 
     ];
   }
 
+  // Filtrer par stock si demandé
+  if (inStockOnly) {
+    whereClause.stock = { gt: 0 };
+  }
+
+  // Filtrer par prix si des limites sont fournies
+  if (pmin !== null || pmax !== null) {
+    whereClause.price = {};
+    if (pmin !== null) {
+      whereClause.price.gte = pmin;
+    }
+    if (pmax !== null) {
+      whereClause.price.lte = pmax;
+    }
+  }
+
   // Déterminer l'ordre de tri Prisma
+  // Pour "rating", on utilise createdAt comme fallback car la note moyenne est calculée après
   let orderBy: Record<string, string>;
   switch (sort) {
     case "price-asc":
@@ -91,6 +122,10 @@ export default async function BoutiquePage({ searchParams }: BoutiquePageProps) 
     case "price-desc":
       orderBy = { price: "desc" };
       break;
+    case "name-asc":
+      orderBy = { name: "asc" };
+      break;
+    case "rating":
     case "recent":
     default:
       orderBy = { createdAt: "desc" };
@@ -123,7 +158,7 @@ export default async function BoutiquePage({ searchParams }: BoutiquePageProps) 
   });
 
   // Sérialiser les Decimal Prisma en number pour les composants client
-  const products: ProductCardData[] = rawProducts.map((p) => {
+  let products: ProductCardData[] = rawProducts.map((p) => {
     // Calculer la moyenne des notes et le nombre d'avis approuvés
     const reviewCount = p.reviews.length;
     const averageRating = reviewCount > 0
@@ -149,6 +184,11 @@ export default async function BoutiquePage({ searchParams }: BoutiquePageProps) 
     };
   });
 
+  // Trier par note moyenne si demandé (tri en JS après calcul de la moyenne)
+  if (sort === "rating") {
+    products.sort((a, b) => (b.averageRating ?? 0) - (a.averageRating ?? 0));
+  }
+
   return (
     <section className="pt-28 pb-12">
       <SectionTitle
@@ -162,6 +202,9 @@ export default async function BoutiquePage({ searchParams }: BoutiquePageProps) 
           activeCategory={categorySlug}
           activeSort={sort}
           searchQuery={searchQuery}
+          inStockOnly={inStockOnly}
+          pmin={pmin}
+          pmax={pmax}
         />
 
         <ShopGrid products={products} searchQuery={searchQuery} />

@@ -86,13 +86,27 @@ export async function generateMetadata({ params }: ProductPageProps): Promise<Me
     };
   }
 
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://www.3d-world.online";
+  const productUrl = `${appUrl}/boutique/${slug}`;
+
   return {
     title: product.name,
     description: product.description.slice(0, 160),
     openGraph: {
       title: `${product.name} | 3D World`,
       description: product.description.slice(0, 160),
+      url: productUrl,
+      type: "website",
       images: product.images.length > 0 ? [{ url: product.images[0] }] : undefined,
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: product.name,
+      description: product.description.slice(0, 160),
+      images: product.images.length > 0 ? [product.images[0]] : undefined,
+    },
+    alternates: {
+      canonical: productUrl,
     },
   };
 }
@@ -110,10 +124,36 @@ export default async function ProductPage({ params }: ProductPageProps) {
     ? product.variants.filter((v) => v.isActive)
     : [];
 
+  // Structure de données JSON-LD pour Google
+  const productSchema = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    name: product.name,
+    description: product.description,
+    image: product.images.length > 0 ? product.images : undefined,
+    offers: {
+      "@type": "Offer",
+      price: product.price.toFixed(2),
+      priceCurrency: "EUR",
+      availability:
+        product.stock > 0
+          ? "https://schema.org/InStock"
+          : "https://schema.org/OutOfStock",
+      url: `${process.env.NEXT_PUBLIC_APP_URL || "https://www.3d-world.online"}/boutique/${slug}`,
+    },
+  };
+
   return (
-    <section className="pt-28 pb-12">
-      <div className="mx-auto max-w-6xl px-4">
-        {/* Fil d'Ariane */}
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(productSchema),
+        }}
+      />
+      <section className="pt-28 pb-12">
+        <div className="mx-auto max-w-6xl px-4">
+          {/* Fil d'Ariane */}
         <nav className="mb-6 flex items-center gap-2 text-sm text-text-light">
           <Link
             href="/boutique"
@@ -133,88 +173,89 @@ export default async function ProductPage({ params }: ProductPageProps) {
         </nav>
 
         {/* Layout principal : galerie + infos */}
-        <div className="grid grid-cols-1 gap-8 md:grid-cols-5 lg:gap-12">
-          {/* Galerie d'images (~60%) */}
-          <div className="md:col-span-3">
-            <ProductImages
-              images={product.images}
-              productName={product.name}
-            />
+          <div className="grid grid-cols-1 gap-8 md:grid-cols-5 lg:gap-12">
+            {/* Galerie d'images (~60%) */}
+            <div className="md:col-span-3">
+              <ProductImages
+                images={product.images}
+                productName={product.name}
+              />
+            </div>
+
+            {/* Informations produit (~40%) */}
+            <div className="flex flex-col gap-5 md:col-span-2">
+              {/* Badge categorie */}
+              <Link
+                href={`/boutique?categorie=${product.category.slug}`}
+                className="w-fit rounded-full bg-primary/10 px-3 py-1 text-xs font-medium text-primary transition-colors hover:bg-primary/20"
+              >
+                {product.category.name}
+              </Link>
+
+              {/* Nom du produit + Bouton favoris */}
+              <div className="flex items-start justify-between gap-4">
+                <h1 className="text-2xl font-bold text-text lg:text-3xl">
+                  {product.name}
+                </h1>
+                <WishlistButton productId={product.id} />
+              </div>
+
+              {/* Prix de base (affiche a cote si pas de variantes) */}
+              {!product.hasVariants && (
+                <p className="text-2xl font-bold text-primary">
+                  {formatPrice(product.price)}
+                </p>
+              )}
+
+              {/* Description */}
+              <div className="prose prose-sm max-w-none text-text-light leading-relaxed">
+                {product.description.split("\n").map((paragraph, i) => (
+                  <p key={i}>{paragraph}</p>
+                ))}
+              </div>
+
+              {/* Partie interactive : variantes, prix dynamique, panier */}
+              <ProductDetailClient
+                product={{
+                  id: product.id,
+                  name: product.name,
+                  price: product.price,
+                  stock: product.stock,
+                  image: product.images.length > 0 ? product.images[0] : null,
+                }}
+                hasVariants={product.hasVariants}
+                variants={activeVariants}
+              />
+            </div>
           </div>
 
-          {/* Informations produit (~40%) */}
-          <div className="flex flex-col gap-5 md:col-span-2">
-            {/* Badge categorie */}
-            <Link
-              href={`/boutique?categorie=${product.category.slug}`}
-              className="w-fit rounded-full bg-primary/10 px-3 py-1 text-xs font-medium text-primary transition-colors hover:bg-primary/20"
-            >
-              {product.category.name}
-            </Link>
+          {/* Avis clients */}
+          <div className="mt-20 border-t border-gray-200 pt-12">
+            <h2 className="mb-8 text-2xl font-bold text-text">Avis clients</h2>
 
-            {/* Nom du produit + Bouton favoris */}
-            <div className="flex items-start justify-between gap-4">
-              <h1 className="text-2xl font-bold text-text lg:text-3xl">
-                {product.name}
-              </h1>
-              <WishlistButton productId={product.id} />
+            <div className="grid grid-cols-1 gap-12 md:grid-cols-3">
+              {/* Avis existants */}
+              <div className="md:col-span-2">
+                <ReviewList productId={product.id} />
+              </div>
+
+              {/* Formulaire ajout avis */}
+              <div>
+                <h3 className="mb-4 font-semibold text-text">
+                  Laisser un avis
+                </h3>
+                <ReviewForm productId={product.id} />
+              </div>
             </div>
-
-            {/* Prix de base (affiche a cote si pas de variantes) */}
-            {!product.hasVariants && (
-              <p className="text-2xl font-bold text-primary">
-                {formatPrice(product.price)}
-              </p>
-            )}
-
-            {/* Description */}
-            <div className="prose prose-sm max-w-none text-text-light leading-relaxed">
-              {product.description.split("\n").map((paragraph, i) => (
-                <p key={i}>{paragraph}</p>
-              ))}
-            </div>
-
-            {/* Partie interactive : variantes, prix dynamique, panier */}
-            <ProductDetailClient
-              product={{
-                id: product.id,
-                name: product.name,
-                price: product.price,
-                stock: product.stock,
-                image: product.images.length > 0 ? product.images[0] : null,
-              }}
-              hasVariants={product.hasVariants}
-              variants={activeVariants}
-            />
           </div>
         </div>
 
-        {/* Avis clients */}
-        <div className="mt-20 border-t border-gray-200 pt-12">
-          <h2 className="mb-8 text-2xl font-bold text-text">Avis clients</h2>
-
-          <div className="grid grid-cols-1 gap-12 md:grid-cols-3">
-            {/* Avis existants */}
-            <div className="md:col-span-2">
-              <ReviewList productId={product.id} />
-            </div>
-
-            {/* Formulaire ajout avis */}
-            <div>
-              <h3 className="mb-4 font-semibold text-text">
-                Laisser un avis
-              </h3>
-              <ReviewForm productId={product.id} />
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Produits associes */}
-      <RelatedProducts
-        categoryId={product.categoryId}
-        currentProductId={product.id}
-      />
-    </section>
+        {/* Produits associes */}
+        <RelatedProducts
+          categoryId={product.categoryId}
+          currentProductId={product.id}
+        />
+      </section>
+    </>
   );
 }

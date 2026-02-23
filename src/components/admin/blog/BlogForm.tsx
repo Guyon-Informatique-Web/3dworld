@@ -81,6 +81,7 @@ export default function BlogForm({ post }: BlogFormProps) {
               name="title"
               type="text"
               required
+              maxLength={200}
               defaultValue={post?.title ?? ""}
               placeholder="Ex : Guide complet de l'impression 3D..."
               className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-text placeholder:text-text-light focus:border-primary focus:ring-1 focus:ring-primary focus:outline-none"
@@ -97,6 +98,7 @@ export default function BlogForm({ post }: BlogFormProps) {
               name="excerpt"
               rows={2}
               required
+              maxLength={300}
               defaultValue={post?.excerpt ?? ""}
               placeholder="Résumé de l'article affiché sur la liste des articles..."
               className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-text placeholder:text-text-light focus:border-primary focus:ring-1 focus:ring-primary focus:outline-none resize-none"
@@ -113,6 +115,7 @@ export default function BlogForm({ post }: BlogFormProps) {
               name="content"
               rows={10}
               required
+              maxLength={50000}
               defaultValue={post?.content ?? ""}
               placeholder="Contenu complet de l'article..."
               className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-text placeholder:text-text-light focus:border-primary focus:ring-1 focus:ring-primary focus:outline-none resize-none"

@@ -126,9 +126,9 @@ export async function POST(request: Request) {
         );
       }
 
-      if (item.quantity < 1 || !Number.isInteger(item.quantity)) {
+      if (item.quantity < 1 || !Number.isInteger(item.quantity) || item.quantity > 1000) {
         return NextResponse.json(
-          { error: `Quantité invalide pour ${product.name}.` },
+          { error: `Quantité invalide pour ${product.name}. Limite maximale : 1000.` },
           { status: 400 }
         );
       }

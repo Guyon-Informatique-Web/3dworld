@@ -6,6 +6,7 @@
 import { revalidatePath } from "next/cache";
 import { requireAdmin } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { sendReviewApprovalNotification } from "@/lib/email";
 
 /** Type de retour standard */
 interface ActionResult {
@@ -16,6 +17,7 @@ interface ActionResult {
 /**
  * Approuve un avis (isApproved = true).
  * Vérifie que l'utilisateur est admin.
+ * Envoie un email de notification au client.
  * Revalide le cache de la page produit.
  */
 export async function approveReview(reviewId: string): Promise<ActionResult> {
@@ -26,12 +28,15 @@ export async function approveReview(reviewId: string): Promise<ActionResult> {
       return { success: false, error: "Identifiant d'avis manquant." };
     }
 
-    // Récupérer l'avis et le produit associé
+    // Récupérer l'avis et les infos associees (produit et client)
     const review = await prisma.review.findUnique({
       where: { id: reviewId },
       include: {
         product: {
-          select: { slug: true },
+          select: { slug: true, name: true },
+        },
+        user: {
+          select: { email: true, name: true },
         },
       },
     });
@@ -45,6 +50,17 @@ export async function approveReview(reviewId: string): Promise<ActionResult> {
       where: { id: reviewId },
       data: { isApproved: true },
     });
+
+    // Envoyer l'email de notification au client
+    if (review.user && review.user.email) {
+      await sendReviewApprovalNotification(
+        review.user.email,
+        review.user.name || "Cher client",
+        review.product.name,
+        review.product.slug,
+        review.rating
+      );
+    }
 
     // Revalider les pages concernées
     revalidatePath(`/boutique/${review.product.slug}`);
