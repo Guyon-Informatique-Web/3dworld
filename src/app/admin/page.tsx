@@ -1,12 +1,46 @@
 // Page tableau de bord admin — affiche les statistiques principales
 // Données chargées côté serveur via Prisma (Server Component)
 
+import dynamic from "next/dynamic";
 import { prisma } from "@/lib/prisma";
 import StatCard from "@/components/admin/StatCard";
-import RevenueChart from "@/components/admin/charts/RevenueChart";
-import TopProducts from "@/components/admin/charts/TopProducts";
-import OrdersByStatus from "@/components/admin/charts/OrdersByStatus";
-import RecentOrders from "@/components/admin/charts/RecentOrders";
+
+// Chargement lazy des graphiques lourds (Recharts)
+const RevenueChart = dynamic(
+  () => import("@/components/admin/charts/RevenueChart"),
+  {
+    loading: () => (
+      <div className="h-64 animate-pulse rounded-lg bg-gray-100" />
+    ),
+  }
+);
+
+const TopProducts = dynamic(
+  () => import("@/components/admin/charts/TopProducts"),
+  {
+    loading: () => (
+      <div className="h-64 animate-pulse rounded-lg bg-gray-100" />
+    ),
+  }
+);
+
+const OrdersByStatus = dynamic(
+  () => import("@/components/admin/charts/OrdersByStatus"),
+  {
+    loading: () => (
+      <div className="h-64 animate-pulse rounded-lg bg-gray-100" />
+    ),
+  }
+);
+
+const RecentOrders = dynamic(
+  () => import("@/components/admin/charts/RecentOrders"),
+  {
+    loading: () => (
+      <div className="h-64 animate-pulse rounded-lg bg-gray-100" />
+    ),
+  }
+);
 
 export const metadata = {
   title: "Tableau de bord",

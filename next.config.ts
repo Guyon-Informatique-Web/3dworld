@@ -13,6 +13,8 @@ const nextConfig: NextConfig = {
         pathname: "/storage/v1/object/public/**",
       },
     ],
+    // Formats modernes pour optimisation: AVIF (meilleure compression) et WebP
+    formats: ["image/avif", "image/webp"],
   },
   // Expose les variables NEXT_PUBLIC_ chargées depuis le fichier commun
   env: publicEnvVars,
