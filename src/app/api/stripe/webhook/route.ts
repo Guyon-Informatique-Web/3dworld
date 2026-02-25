@@ -8,6 +8,7 @@ import { stripe } from "@/lib/stripe";
 import { prisma } from "@/lib/prisma";
 import { updateOrderStatus, getOrderById } from "@/lib/orders";
 import { sendOrderConfirmation, sendNewOrderNotification, sendErrorAlert } from "@/lib/email";
+import { syncPaymentToFactuPilot } from "@/lib/factupilot-sync";
 import type Stripe from "stripe";
 
 // Forcer le runtime Node.js (necessaire pour le traitement du body brut)
@@ -107,6 +108,21 @@ export async function POST(request: Request) {
             sendOrderConfirmation(fullOrder),
             sendNewOrderNotification(fullOrder),
           ]);
+
+          // Sync vers FactuPilot (non-bloquant)
+          syncPaymentToFactuPilot({
+            client: {
+              email: fullOrder.email,
+              name: fullOrder.name,
+            },
+            payment: {
+              amount: Number(fullOrder.totalAmount),
+              description: `Commande 3D World #${fullOrder.id.slice(0, 8)}`,
+              stripePaymentId: (session.payment_intent as string) || session.id,
+              type: "one_time",
+              date: new Date().toISOString(),
+            },
+          }).catch(() => {/* Erreur déjà loguée dans factupilot-sync */});
         }
       } catch (error) {
         console.error(
